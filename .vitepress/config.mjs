@@ -17,8 +17,15 @@ export default defineConfig({
 
     sidebar: [
       {
-        text: '📒 笔记',
+        text: '☕ Java',
         collapsed: false,
+        items: [
+          { text: 'JavaSE 笔记', link: '/JavaSE' }
+        ]
+      },
+      {
+        text: '📒 参考',
+        collapsed: true,
         items: [
           { text: 'Markdown 语法参考', link: '/markdown-examples' },
           { text: 'VitePress 初始化教程', link: '/VitePress初始化教程' }
