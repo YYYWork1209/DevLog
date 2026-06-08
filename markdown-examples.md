@@ -1,85 +1,81 @@
-# Markdown Extension Examples
+# Markdown 语法参考
 
-This page demonstrates some of the built-in markdown extensions provided by VitePress.
+本页展示 VitePress 内置的 Markdown 扩展语法，写文章时可以参考。
 
-## Syntax Highlighting
+## 代码高亮
 
-VitePress provides Syntax Highlighting powered by [Shiki](https://github.com/shikijs/shiki), with additional features like line-highlighting:
+VitePress 基于 [Shiki](https://github.com/shikijs/shiki) 提供语法高亮，支持行号高亮：
 
-**Input**
+**写法**
 
 ````md
-```js{4}
-export default {
-  data () {
-    return {
-      msg: 'Highlighted!'
+```java{4}
+public class HelloWorld {
+    public static void main(String[] args) {
+        System.out.println("Hello DevLog!");
     }
-  }
 }
 ```
 ````
 
-**Output**
+**效果**
 
-```js{4}
-export default {
-  data () {
-    return {
-      msg: 'Highlighted!'
+```java{4}
+public class HelloWorld {
+    public static void main(String[] args) {
+        System.out.println("Hello DevLog!");
     }
-  }
 }
 ```
 
-## Custom Containers
+## 自定义容器
 
-**Input**
+**写法**
 
 ```md
 ::: info
-This is an info box.
+这是一个信息提示框。
 :::
 
 ::: tip
-This is a tip.
+这是一个小贴士。
 :::
 
 ::: warning
-This is a warning.
+这是一个警告。
 :::
 
 ::: danger
-This is a dangerous warning.
+这是一个危险警告。
 :::
 
 ::: details
-This is a details block.
+这是一个折叠块。
 :::
 ```
 
-**Output**
+**效果**
 
 ::: info
-This is an info box.
+这是一个信息提示框。
 :::
 
 ::: tip
-This is a tip.
+这是一个小贴士。
 :::
 
 ::: warning
-This is a warning.
+这是一个警告。
 :::
 
 ::: danger
-This is a dangerous warning.
+这是一个危险警告。
 :::
 
 ::: details
-This is a details block.
+这是一个折叠块。
 :::
 
-## More
+## 更多
 
-Check out the documentation for the [full list of markdown extensions](https://vitepress.dev/guide/markdown).
+查看 [VitePress Markdown 扩展](https://vitepress.dev/guide/markdown) 了解更多语法。

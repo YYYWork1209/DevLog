@@ -45,4 +45,23 @@
 
   D:\DevLog>```
 
+# 提交到远程仓库使用git进行管理
+需要忽略的文件如下
+```  
+        4. 当前项目结构
+            D:\DevLog\
+            ├── .git/
+            ├── .gitignore           ✅ 已检查修复
+            ├── .vitepress/
+            │   ├── cache/           ❌ 不提交
+            │   ├── config.mjs       标题: DevLog | 描述: 后端技术日志
+            │   └── theme/
+            ├── node_modules/        ❌ 不提交
+            ├── index.md             首页
+            ├── api-examples.md
+            ├── markdown-examples.md
+            ├── VitePress初始化教程.md
+            ├── package.json
+            └── package-lock.json 
+```
 
