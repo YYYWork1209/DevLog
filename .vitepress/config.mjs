@@ -3,7 +3,7 @@ import { defineConfig } from 'vitepress'
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "DevLog",
-  description: "每天一点进步，分享我在编程路上的踩坑与收获",
+  description: "后端技术日志",
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
