@@ -23,7 +23,7 @@ jobs:
 
       - name: Build for GitHub Pages
         env:
-          VITE_BASE: /DevLog/
+          VITE_BASE: /
         run: npm run docs:build
 
       - name: Deploy to GitHub Pages
