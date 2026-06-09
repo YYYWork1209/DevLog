@@ -1,0 +1,44 @@
+import{_ as n,o as a,c as p,a2 as e}from"./chunks/framework.BZO4qERu.js";const m=JSON.parse('{"title":"安装VitePress","description":"","frontmatter":{},"headers":[],"relativePath":"reference/VitePress初始化教程.md","filePath":"reference/VitePress初始化教程.md","lastUpdated":1780998639000}'),l={name:"reference/VitePress初始化教程.md"};function i(t,s,c,o,r,d){return a(),p("div",null,[...s[0]||(s[0]=[e(`<h1 id="安装vitepress" tabindex="-1">安装VitePress <a class="header-anchor" href="#安装vitepress" aria-label="Permalink to &quot;安装VitePress&quot;">​</a></h1><ul><li>新建一个项目文件夹，使用 <code>npm add -D vitepress</code> 进行配置 <blockquote><ul><li><p>npm add -D 安装的依赖只用于当前文件夹下的项目 它会安装到当前项目的 node_modules 中，不会影响其他项 目。</p></li><li><p>仅作为开发时使用 这些包通常用于开发阶段（如测试、编译、打包工具等），生产 环境不需要(编译打包时，只有代码中引入的依赖包才会被一并打包)。</p></li><li><p>其他文件夹想使用必须再次安装 每个项目的依赖都是独立的，换一个项目就要重新安装。</p></li></ul></blockquote></li><li>执行初始化命令，让<code>VitePress</code>帮我们搭建一个基础的框架<div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>vitepress init </span></span>
+<span class="line"><span>    </span></span>
+<span class="line"><span>D:\\DevLog&gt;npx vitepress init</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>T  Welcome to VitePress!</span></span>
+<span class="line"><span>|</span></span>
+<span class="line"><span>o  Where should VitePress initialize the config?</span></span>
+<span class="line"><span>|  ./</span></span>
+<span class="line"><span>|</span></span>
+<span class="line"><span>o  Site title:</span></span>
+<span class="line"><span>|  DevLog</span></span>
+<span class="line"><span>|</span></span>
+<span class="line"><span>o  Site description:</span></span>
+<span class="line"><span>|  每天一点进步，分享我在编程路上的踩坑与收获</span></span>
+<span class="line"><span>|</span></span>
+<span class="line"><span>o  Theme:</span></span>
+<span class="line"><span>|  Default Theme + Customization</span></span>
+<span class="line"><span>|</span></span>
+<span class="line"><span>o  Use TypeScript for config and theme files?</span></span>
+<span class="line"><span>|  No</span></span>
+<span class="line"><span>|</span></span>
+<span class="line"><span>o  Add VitePress npm scripts to package.json?</span></span>
+<span class="line"><span>|  Yes</span></span>
+<span class="line"><span>|</span></span>
+<span class="line"><span>—  Done! Now run npm run docs:dev and start writing.</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>Tips:</span></span>
+<span class="line"><span>- Since you&#39;ve chosen to customize the theme, you should also explicitly install vue as a dev dependency.</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>D:\\DevLog&gt;\`\`\`</span></span></code></pre></div></li></ul><h1 id="提交到远程仓库使用git进行管理" tabindex="-1">提交到远程仓库使用git进行管理 <a class="header-anchor" href="#提交到远程仓库使用git进行管理" aria-label="Permalink to &quot;提交到远程仓库使用git进行管理&quot;">​</a></h1><p>需要忽略的文件如下</p><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>        4. 当前项目结构</span></span>
+<span class="line"><span>            D:\\DevLog\\</span></span>
+<span class="line"><span>            ├── .git/</span></span>
+<span class="line"><span>            ├── .gitignore           ✅ 已检查修复</span></span>
+<span class="line"><span>            ├── .vitepress/</span></span>
+<span class="line"><span>            │   ├── cache/           ❌ 不提交</span></span>
+<span class="line"><span>            │   ├── config.mjs       标题: DevLog | 描述: 后端技术日志</span></span>
+<span class="line"><span>            │   └── theme/</span></span>
+<span class="line"><span>            ├── node_modules/        ❌ 不提交</span></span>
+<span class="line"><span>            ├── index.md             首页</span></span>
+<span class="line"><span>            ├── api-examples.md</span></span>
+<span class="line"><span>            ├── markdown-examples.md</span></span>
+<span class="line"><span>            ├── VitePress初始化教程.md</span></span>
+<span class="line"><span>            ├── package.json</span></span>
+<span class="line"><span>            └── package-lock.json</span></span></code></pre></div>`,5)])])}const u=n(l,[["render",i]]);export{m as __pageData,u as default};
