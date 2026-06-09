@@ -21,14 +21,30 @@ export default defineConfig({
         collapsed: false,
         items: [
           { text: 'JavaSE 笔记', link: '/JavaSE' },
-          { text: 'Mybatis 笔记', link: '/Mybatis' }
+          { text: 'Mybatis 笔记', link: '/Mybatis' },
+          { text: 'Spring 笔记', link: '/Spring' }
         ]
       },
       {
         text: '🗄️ 数据库',
         collapsed: false,
         items: [
-          { text: 'MySQL 面试题', link: '/MySql面试题' }
+          { text: 'MySQL 面试题', link: '/MySql面试题' },
+          { text: 'Redis 面试', link: '/Redis面试' }
+        ]
+      },
+      {
+        text: '☁️ 微服务 & 中间件',
+        collapsed: false,
+        items: [
+          { text: 'SpringCloud 中间件', link: '/SpringCloud中间件' }
+        ]
+      },
+      {
+        text: '🔧 工具',
+        collapsed: false,
+        items: [
+          { text: 'Git 核心概念', link: '/Git 核心概念与操作总结' }
         ]
       },
       {
