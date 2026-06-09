@@ -38,7 +38,8 @@ export default defineConfig({
         text: '☁️ 微服务 & 中间件',
         collapsed: false,
         items: [
-          { text: 'SpringCloud 中间件', link: '/microservices/SpringCloud中间件' }
+          { text: 'SpringCloud 中间件', link: '/microservices/SpringCloud中间件' },
+          { text: 'RabbitMQ 实践问题', link: '/microservices/RabbitMQ实践问题' }
         ]
       },
       {
