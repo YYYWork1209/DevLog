@@ -22,6 +22,7 @@ export default defineConfig({
         items: [
           { text: 'JavaSE 笔记', link: '/JavaSE' },
           { text: 'Mybatis 笔记', link: '/Mybatis' },
+          { text: 'Mybatis-Plus 问题汇总', link: '/Mybatis-Plus问题汇总' },
           { text: 'Spring 笔记', link: '/Spring' }
         ]
       },
@@ -38,6 +39,15 @@ export default defineConfig({
         collapsed: false,
         items: [
           { text: 'SpringCloud 中间件', link: '/SpringCloud中间件' }
+        ]
+      },
+      {
+        text: '🤖 AI Agent',
+        collapsed: false,
+        items: [
+          { text: 'SpringAI 问题汇总', link: '/SpringAI问题汇总' },
+          { text: 'OnCallAgent', link: '/OnCallAgent' },
+          { text: 'RAG 知识库检索优化', link: '/RAG知识库检索优化' }
         ]
       },
       {
