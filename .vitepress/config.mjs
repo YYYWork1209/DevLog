@@ -20,7 +20,15 @@ export default defineConfig({
         text: '☕ Java',
         collapsed: false,
         items: [
-          { text: 'JavaSE 笔记', link: '/JavaSE' }
+          { text: 'JavaSE 笔记', link: '/JavaSE' },
+          { text: 'Mybatis 笔记', link: '/Mybatis' }
+        ]
+      },
+      {
+        text: '🗄️ 数据库',
+        collapsed: false,
+        items: [
+          { text: 'MySQL 面试题', link: '/MySql面试题' }
         ]
       },
       {
