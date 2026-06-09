@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git commit -m 'revert: 移除自定义主题切换组件，回归 VitePress 原生暗亮模式 *)",
+      "Bash(git push *)"
+    ]
+  }
+}
