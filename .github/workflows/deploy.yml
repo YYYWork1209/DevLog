@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy to OSS
 
 on:
   push:
@@ -6,36 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  # ---- GitHub Pages（临时访问入口，备案期间使用）-------------------------------
-  deploy-gh-pages:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-
-      - run: npm ci
-
-      - name: Build for GitHub Pages
-        env:
-          VITE_BASE: /
-        run: npm run docs:build
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .vitepress/dist
-          publish_branch: gh-pages
-          force_orphan: true
-
-  # ---- 阿里云 OSS（备案通过后绑定自定义域名使用）---------------------------------
-  deploy-oss:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -47,10 +18,10 @@ jobs:
 
       - run: npm ci
 
-      - name: Build for OSS
+      - name: Build VitePress
         run: npm run docs:build
 
-      - name: Deploy to OSS
+      - name: Deploy to Alibaba Cloud OSS
         env:
           OSS_ACCESS_KEY_ID: ${{ secrets.OSS_ACCESS_KEY_ID }}
           OSS_ACCESS_KEY_SECRET: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
