@@ -67,7 +67,8 @@ export default defineConfig({
         items: [
           { text: 'Markdown 语法参考', link: '/reference/markdown-examples' },
           { text: 'VitePress 初始化教程', link: '/reference/VitePress初始化教程' },
-          { text: 'OSS 部署教程', link: '/reference/OSS部署教程' }
+          { text: 'OSS 部署教程', link: '/reference/OSS部署教程' },
+          { text: 'Cloudflare 加速教程', link: '/reference/Cloudflare加速教程' }
         ]
       }
     ],
