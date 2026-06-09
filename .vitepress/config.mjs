@@ -48,7 +48,8 @@ export default defineConfig({
         items: [
           { text: 'SpringAI 问题汇总', link: '/ai-agent/SpringAI问题汇总' },
           { text: 'OnCallAgent', link: '/ai-agent/OnCallAgent' },
-          { text: 'RAG 知识库检索优化', link: '/ai-agent/RAG知识库检索优化' }
+          { text: 'RAG 知识库检索优化', link: '/ai-agent/RAG知识库检索优化' },
+          { text: 'AI 客服系统设计', link: '/ai-agent/AI客服系统设计' }
         ]
       },
       {
