@@ -46,26 +46,102 @@ https://<bucket名称>.oss-cn-hangzhou.aliyuncs.com
 
 ---
 
-## 二、获取 AccessKey
+## 二、获取 AccessKey（附概念解释）
 
-> ⚠️ 不要用主账号 AccessKey！用 RAM 子账号，权限最小化。
+### 先搞懂这几个概念
 
-### 1. 创建 RAM 用户
+在操作之前，先理解下面几个名词，否则容易踩坑。
+
+#### RAM 是什么？
+
+**RAM = Resource Access Management（资源访问控制）**，是阿里云的身份管理服务。
+
+打个比方——你在阿里云注册的账号就像**公司的老板**，拥有所有钥匙，什么都能干。但你不能把老板的钥匙交给 GitHub Actions 这个"外包工人"去用，万一泄露了，对方能删光你所有资源。
+
+RAM 就是让你**创建"员工工牌"**的工具——给不同人（或程序）发不同权限的钥匙：
+
+```
+主账号（你）
+  ├── RAM 用户 devlog-deploy（只能操作 OSS）  ← 给 GitHub Actions 用
+  ├── RAM 用户 web-admin（只能管理网站）     ← 给同事用
+  └── RAM 用户 readonly（只能看不能改）      ← 给实习生用
+```
+
+#### RAM 用户是什么？
+
+就是上面那些"员工工牌"。每个 RAM 用户有独立的身份凭证，可以：
+
+- **登录控制台**（就像员工登录公司后台）——需要用户名+密码
+- **通过 API 调用**（程序自动操作）——需要 AccessKey ID + Secret
+
+一个 RAM 用户可以同时拥有两种访问方式，也可以只有其中一种。
+
+#### OpenAPI 调用访问 是什么？
+
+阿里云的每一种操作（上传文件、删除 Bucket、查看账单…）背后都对应着一个 **API 接口**。
+
+- **你手动在网页控制台点按钮** → 控制台在背后帮你调用 API
+- **OpenAPI 调用访问** → 程序拿着 AccessKey 直接调用 API，不需要人点按钮
+
+我们的部署脚本就是通过 AccessKey ID + Secret 调用 OSS 的上传 API，实现自动上传。所以创建 RAM 用户时要勾选这个选项：
+
+```
+创建 RAM 用户时：
+  ☐ 控制台访问        → 不勾，脚本不需要登录网页
+  ☑ OpenAPI 调用访问  → 勾上，生成 AccessKey ID + Secret
+```
+
+#### AliyunOSSFullAccess 策略 是什么？
+
+**策略（Policy）** = 权限规则，定义了"能做什么、对哪些资源做"。
+
+阿里云提供了很多预置策略，开箱即用：
+
+| 策略名 | 含义 |
+|--------|------|
+| `AliyunOSSFullAccess` | OSS **全部权限**（上传/下载/删除/配置） |
+| `AliyunOSSReadOnlyAccess` | OSS **只读**（只能看和下载，不能改） |
+| `AdministratorAccess` | **所有云产品**的全部权限（= 老板本人） |
+
+我们选 `AliyunOSSFullAccess`，意思是：
+> "这个 RAM 用户可以对 OSS 做任何操作，但不能碰你的 ECS、数据库、域名等其他云产品。"
+
+这就是**权限最小化原则**——只用够用的权限，即使 AccessKey 泄露，损失也被限定在 OSS 范围内。
+
+---
+
+### 操作步骤
+
+搞懂上面这些后，操作就简单了：
+
+#### 1. 创建 RAM 用户
 
 进入 [RAM 访问控制](https://ram.console.aliyun.com/) → **身份管理** → **用户** → **创建用户**
 
-- 登录名称：`devlog-deploy`
-- 显示名称：`DevLog 部署用户`
-- 勾选 **OpenAPI 调用访问**（会生成 AccessKey ID 和 Secret）
+| 字段 | 值 | 说明 |
+|------|-----|------|
+| 登录名称 | `devlog-deploy` | 只是标识名，不用来登录 |
+| 显示名称 | `DevLog 部署用户` | 方便你在控制台识别 |
+| 访问方式 | ☑ **OpenAPI 调用访问** | 生成 AccessKey，给脚本用 |
 
-### 2. 授权
+#### 2. 授权
 
-用户创建完成后 → **添加权限** → 选择 **AliyunOSSFullAccess**
+用户创建完成后，在用户列表找到它 → **添加权限** → 搜索并勾选 **AliyunOSSFullAccess** → 确定。
 
-### 3. 保存密钥
+> 含义：给这个用户发一张"仅限 OSS 区域通行"的工牌。
 
-> 🔒 **这个页面关闭后就看不到 Secret 了！**  
-> 立即复制保存 **AccessKey ID** 和 **AccessKey Secret**。
+#### 3. 保存密钥
+
+> 🔒 **这个页面关闭后就看不到 Secret 了！必须立刻保存。**
+
+你会得到两个值：
+
+| 凭证 | 样子 | 类比 |
+|------|------|------|
+| AccessKey ID | `LTAI5txxxxxx` | 用户名（公开的，知道 ID 没用） |
+| AccessKey Secret | `abc123xxxxxx` | 密码（保密的，ID+Secret 才能操作） |
+
+> 💡 如果搞丢了，删掉重建一个 RAM 用户就行，完全免费。
 
 ---
 
