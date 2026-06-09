@@ -14,10 +14,11 @@
 
 import OSS from 'ali-oss'
 import { readFileSync, readdirSync, statSync } from 'fs'
-import { join, relative, basename, extname } from 'path'
-import { execSync } from 'child_process'
+import { join, relative, basename, extname, dirname } from 'path'
+import { fileURLToPath } from 'url'
 
-const ROOT = join(import.meta.dirname, '..')
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const ROOT = join(__dirname, '..')
 const DIST = join(ROOT, '.vitepress', 'dist')
 
 // ---- 校验环境变量 -----------------------------------------------------------
