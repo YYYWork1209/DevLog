@@ -2,9 +2,6 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  head: [
-    ['script', {}, `(function(){var t=localStorage.getItem('devlog-theme')||'dark';document.documentElement.setAttribute('data-theme',t);document.documentElement.classList.toggle('dark',t==='dark')})()`]
-  ],
   title: "DevLog",
   description: "后端技术日志",
   lang: 'zh-CN',
