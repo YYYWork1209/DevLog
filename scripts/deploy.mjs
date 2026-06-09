@@ -98,14 +98,16 @@ async function upload() {
     try {
       // 检查文件是否已存在且内容一致（基于 ETag / MD5 对比可优化，这里简单跳过）
       const content = readFileSync(local)
-      const headers = {
-        'Content-Type': mimeType(local),
-        'Cache-Control': remote.endsWith('.html')
-          ? 'no-cache'
-          : 'public, max-age=31536000, immutable',
-      }
+      const mime = mimeType(local)
 
-      await client.put(remote, content, { headers })
+      await client.put(remote, content, {
+        mime,
+        headers: {
+          'Cache-Control': remote.endsWith('.html')
+            ? 'no-cache'
+            : 'public, max-age=31536000, immutable',
+        },
+      })
       uploaded++
       console.log(`   ✅ ${remote}`)
     } catch (err) {
