@@ -2,6 +2,7 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  base: process.env.VITE_BASE || '/',
   title: "DevLog",
   description: "后端技术日志",
   lang: 'zh-CN',
