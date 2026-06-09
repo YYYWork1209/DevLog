@@ -2,8 +2,8 @@
    DevLog Theme — 深蓝灰 · 干净克制
    ============================================ */
 
-/* ---- CSS Variables: Light Mode ---- */
-:root {
+/* ---- Theme: 亮色 ---- */
+html[data-theme="light"] {
   --vp-c-bg: #ffffff;
   --vp-c-bg-soft: #f6f7f9;
   --vp-c-bg-mute: #edf0f4;
@@ -58,8 +58,8 @@
   --vp-input-switch-bg-color: #e2e5ec;
 }
 
-/* ---- CSS Variables: Dark Mode ---- */
-html.dark {
+/* ---- Theme: 暗色 ---- */
+html[data-theme="dark"] {
   --vp-c-bg: #101217;
   --vp-c-bg-soft: #161920;
   --vp-c-bg-mute: #1c1f28;
