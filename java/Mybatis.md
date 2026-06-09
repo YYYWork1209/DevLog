@@ -30,7 +30,7 @@
 
 1. 使用CGLIB创建目标对象的代理对象
 2. 当调用目标方法user.getOrderList()时，进入拦截器invoke方法，发现user.getOrderListO是null值，执行sql查询order列表
-3. 把order查询上来，然后调用user.setOrderList(List<Order>orderList），接着完成user.getOrderList()方法的调用
+3. 把order查询上来，然后调用`user.setOrderList(List<Order>orderList)`，接着完成`user.getOrderList()`方法的调用
 
 ![](/imgs/延迟加载流程图.png)
 

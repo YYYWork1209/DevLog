@@ -35,7 +35,7 @@ slow_query_log=1
 
 配置完毕之后，通过以下指令重新启动MySQL服务器进行测试，查看慢日志文件中记录的信息/var/lib/mysql/localhost-slow.log.
 
-```Mysql自带慢日志工具示例
+```text
 # Time: 2023-03-15T15:21:55.178101Z
 # User@Host: root[root] @ localhost [::l] Id:# Query_time: 45.472697
 Lock_time: 0.003903 Rows_sent: 10000000
@@ -49,7 +49,7 @@ SET timestamp=1678893715;select * from tb_sku;
 
 可以采用**EXPLAIN** 或者 **DESC**命令获取 MySQL**执行 SELECT语句的状态信息**
 
-```Mysql
+```sql
 # 直接在select语句之前加上关键字explain/ desc
 EXPLAIN SELECT 字段列表 FROM 表名 WHERE 条件；
 ```

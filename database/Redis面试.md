@@ -26,7 +26,7 @@ Redis实现分布式锁主要利用Redis的setnx命令。setnx是SET if not exis
 
 - 获取锁:
 
-```redis
+```bash
 #添加锁，NX是互斥、EX是设置超时时间
 SET lock value NX EX 10
 
