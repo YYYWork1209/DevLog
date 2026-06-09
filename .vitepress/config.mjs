@@ -20,49 +20,49 @@ export default defineConfig({
         text: '☕ Java',
         collapsed: false,
         items: [
-          { text: 'JavaSE 笔记', link: '/JavaSE' },
-          { text: 'Mybatis 笔记', link: '/Mybatis' },
-          { text: 'Mybatis-Plus 问题汇总', link: '/Mybatis-Plus问题汇总' },
-          { text: 'Spring 笔记', link: '/Spring' }
+          { text: 'JavaSE 笔记', link: '/java/JavaSE' },
+          { text: 'Mybatis 笔记', link: '/java/Mybatis' },
+          { text: 'Mybatis-Plus 问题汇总', link: '/java/Mybatis-Plus问题汇总' },
+          { text: 'Spring 笔记', link: '/java/Spring' }
         ]
       },
       {
         text: '🗄️ 数据库',
         collapsed: false,
         items: [
-          { text: 'MySQL 面试题', link: '/MySql面试题' },
-          { text: 'Redis 面试', link: '/Redis面试' }
+          { text: 'MySQL 面试题', link: '/database/MySql面试题' },
+          { text: 'Redis 面试', link: '/database/Redis面试' }
         ]
       },
       {
         text: '☁️ 微服务 & 中间件',
         collapsed: false,
         items: [
-          { text: 'SpringCloud 中间件', link: '/SpringCloud中间件' }
+          { text: 'SpringCloud 中间件', link: '/microservices/SpringCloud中间件' }
         ]
       },
       {
         text: '🤖 AI Agent',
         collapsed: false,
         items: [
-          { text: 'SpringAI 问题汇总', link: '/SpringAI问题汇总' },
-          { text: 'OnCallAgent', link: '/OnCallAgent' },
-          { text: 'RAG 知识库检索优化', link: '/RAG知识库检索优化' }
+          { text: 'SpringAI 问题汇总', link: '/ai-agent/SpringAI问题汇总' },
+          { text: 'OnCallAgent', link: '/ai-agent/OnCallAgent' },
+          { text: 'RAG 知识库检索优化', link: '/ai-agent/RAG知识库检索优化' }
         ]
       },
       {
         text: '🔧 工具',
         collapsed: false,
         items: [
-          { text: 'Git 核心概念', link: '/Git 核心概念与操作总结' }
+          { text: 'Git 核心概念', link: '/tools/Git 核心概念与操作总结' }
         ]
       },
       {
         text: '📒 参考',
         collapsed: true,
         items: [
-          { text: 'Markdown 语法参考', link: '/markdown-examples' },
-          { text: 'VitePress 初始化教程', link: '/VitePress初始化教程' }
+          { text: 'Markdown 语法参考', link: '/reference/markdown-examples' },
+          { text: 'VitePress 初始化教程', link: '/reference/VitePress初始化教程' }
         ]
       }
     ],
