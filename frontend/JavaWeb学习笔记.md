@@ -3901,7 +3901,8 @@ mysql -hxxx -Pxxx -uxxx -pxxx
 连接 MySql 数据库（初始化操作）
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](C:\Users\YJC\AppData\Roaming\Typora\typora-user-images\1757992171015.png)
+<!-- ![](C:\Users\YJC\AppData\Roaming\Typora\typora-user-images\1757992171015.png) -->
+> TODO: 图片需从本地迁移到仓库 assets 中
 
 点击界面上方的数据库图标，然后点击左侧加号，选择需要连接的数据库系统，然后输入需要连接的数据库的`IP`地址，`Port`端口号，用户名以及密码，然后点击左下方`Download`下载需要的驱动。最后点击`Test Connection`查看连接是否成功。
 
@@ -5986,7 +5987,7 @@ mybatis:
 前端页面需要部署到`nginx`服务器当中来进行测试。
 
 将资料中提供的前端工程文件夹中的压缩包，拷贝到一个没有中文不带空格的目录下，解压。  
-启动nginx，访问测试路径：[http://localhost:90](http://localhost:90)
+启动nginx，访问测试路径：`http://localhost:90`
 
 解压后的文件夹里面：
 
@@ -6025,7 +6026,7 @@ server {
 
 ### 新增
 #### controller 层接收（json格式）请求数据
-接收json格式的请求参数：POST  /depts  { "name”：“教研部” }
+接收json格式的请求参数：POST  /depts  `{ “name”: “教研部” }`
 
 JSON格式的参数，通常会使用一个实体对象进行接收  
 规则：JSON数据的键名与方法形参对象的属性名相同，并需要使用@RequestBody注解标识。
@@ -6354,8 +6355,8 @@ Cookie的所有缺点都具有
 #### 组成：
 每部分之间进行编码（Base64）后生成对应的令牌，每部分之间在编码后以`.`隔开。
 
-1. 第一部分：Header（头），记录令牌类型、签名算法等。例如：{"alg"："HS256"，"type"："JwT"}
-2. 第二部分：Payload（有效载荷），携带一些自定义信息、默认信息等。例如：{"id"："1"，"username"："Tom"}
+1. 第一部分：Header（头），记录令牌类型、签名算法等。例如：`{"alg": "HS256", "type": "JWT"}`
+2. 第二部分：Payload（有效载荷），携带一些自定义信息、默认信息等。例如：`{"id": "1", "username": "Tom"}`
 3. 第三部分：Signature（签名），防止Token被篡改、确保安全性。将header、payload融入，并加入指定秘钥，通过指定签名算法计算而来。
 
 前两部分通过Base64编码把JSON类型的信息编码之后，第三部分会把前两部分以及自己定义的密钥合起来，通过第一部分指定的签名算法来进行编码，然后与经过Base64编码后的前两部分的内容通过`.`拼接起来作为一个完整的令牌。

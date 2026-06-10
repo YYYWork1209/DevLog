@@ -9,24 +9,24 @@ for student in student_set:
         print("删除成功！")
 ```
 
-> 控制台信息如下：
->
-> 请输入需要使用的教务系统功能序号：3
->
-> 请输入需要删除的学生姓名：闫金超
->
-> 删除成功！
->
-> 
->
-> Traceback (most recent call last):
->
->   File "D:\PythonProject\教务系统\edumanagement.py", line 49, in <module>
->
->     for student in student_set:
->
-> RuntimeError: Set changed size during iteration
->
+控制台信息如下：
+
+```
+请输入需要使用的教务系统功能序号：3
+
+请输入需要删除的学生姓名：闫金超
+
+删除成功！
+
+
+Traceback (most recent call last):
+
+  File "D:\PythonProject\教务系统\edumanagement.py", line 49, in <module>
+
+    for student in student_set:
+
+RuntimeError: Set changed size during iteration
+```
 
 
 
