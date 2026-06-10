@@ -1,13 +1,11 @@
 {
   "type": "module",
   "devDependencies": {
-    "ali-oss": "^6.22.0",
     "vitepress": "^1.6.4"
   },
   "scripts": {
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
-    "docs:preview": "vitepress preview",
-    "deploy": "npm run docs:build && node scripts/deploy.mjs"
+    "docs:preview": "vitepress preview"
   }
 }
