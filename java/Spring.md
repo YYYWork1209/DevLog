@@ -820,3 +820,644 @@ protected List<String> getCandidateConfigurations(AnnotationMetadata metadata,
 | @EnableAutoConfiguration | 打开自动配置的功能，依据条件加载所需配置                     |
 | @ComponentScan           | Spring组件扫描，例如Mapper层需要Spring进行生成自动代理，需要被启动类扫描到 |
 
+
+
+---
+
+
+# Spring学习笔记
+# 一，IoC（Inversion of Control）控制反转&DI（Dependency Injection）依赖注入：
+由于原本的书写代码的方式代码之间耦合度较高，一般功能写为接口，通过**接口多态**调用当前接口的实现类，但是由于是采用new的方法new出的对象，所以当**添加新功能或者更改实现类的时候，就需要修改源码，修改源码后就需要重新编译，耦合度太高不利于开发！**
+
+
+
+**耦合度**：一般是指代码之间的联系的紧密程度，即修改代码时对其他代码的影响大小，耦合度越高影响越大，**代码之间的关联越大。**
+
+
+
+**解决方案**  
+**使用对象时，在程序中不要主动使用new产生对象，转换为由外部提供对象**
+
+示例如下：
+
+```java
+//业务层实现
+public class BookServiceImpl implements BookService{
+
+    private BookDao bookDao = new BookDaoImpl2();
+    //此时是利用new来创建的功能实现类对象，耦合度太高，当功能发生变化，就需要修改此处代码。
+    //解决方案
+    //使用对象时，在程序中不要主动使用new产生对象，转换为由外部提供对象
+    public void save() {
+
+    bookDao.save();
+    }
+}
+
+//数据层实现
+public class BookDaoImpl implements BookDao {
+    public void save() {
+        System.out.println("book dao save...");
+    }
+}
+
+//数据层发生了功能变化
+public class BookDaoImpl2 implements BookDao{
+    public void save(){
+        System.out.println("book dao save...2");
+    }
+}
+```
+
+
+
+**解决方案**  
+**使用对象时，在程序中不要主动使用new产生对象，转换为由外部提供对象**
+
+这种思想（方法）被叫做：**IoC（Inversion of Control）控制反转**
+
+### 1.IoC（Inversion of Control）控制反转：
++ 	使用对象时，由主动new产生对象转换为由外部提供对象，此过程中对象创建控制权由程序转移到**外部**，此思想称为控制反转
++ Spring技术对Ioc思想进行了实现  
+Spring提供了一个容器，称为**Ioc容器**，用来充当Ioc思想中的**'外部'**  
+  Ioc容器负责对象的创建、初始化等一系列工作，被创建或被管理的**对象**在Ioc容器中统称为**Bean**
+
+
+
+**2.DI（Dependency Injection）依赖注入：**  
+    **在容器中建立bean（对象）与bean（对象）之间的依赖关系的整个过程，称为依赖注入**
+
+原因：部分对象之间存在依赖关系
+
+例如商品属性类与商品类：商品会有自己的独特的口味，包装规格，价格......，都可以称作商品的属性，当使用一个商品类对象时，会用到商品的属性，此时就需要**在商品类中定义一个商品属性类对象，这种包含关系称为依赖关系。**
+
+
+
+利用IoC（Inversion of Control）控制反转&DI（Dependency Injection）依赖注入的目的：
+
+1.使程序充分解耦：
+
++ 	**使用Ioc容器管理bean（IoC）**
++ 	**在Ioc容器内将有依赖关系的bean进行关系绑定(DI)**
+
+2.最终效果  
+    **使用对象时不仅可以直接从Ioc容器中获取，并且获取到的bean已经绑定了所有的依赖关系**
+
+
+
+# 二，容器的创建以及Bean的创建与获取
+### 1.容器的创建方式：
+类路径下加载配置文件创建容器：
+
+```java
+//在主函数中运行时，加载类路径下的配置文件（得到容器）
+ApplicationContext app=new ClassPathXmlApplicationContext("配置文件.xml");
+//前面的Applicationtext是接口类型，后面是接口类的实现类对象，采用了接口多态来调用，传入的是配置文件的名称，以此来加载配置文件的信息
+```
+
+文件路经加载配置文件创建容器：
+
+```java
+//用文件路径寻找加载配置文件
+ApplicationContext	ctx=new	FileSystemXmlApplicationContext("Xml配置文件的绝对路径")
+```
+
+
+
+加载多个配置文件时：
+
+```java
+ApplicationContext ctx = new ClassPathXmlApplicationContext("bean1.xml", "bean2.xml");
+```
+
+
+
+### 2.Bean的配置：
+**采用的是getBean的方法来获取Bean，此方法返回的变量类型是Object类型的，所以要对返回结果进行强制类型转换，或者指明其对应需要的变量类型。**
+
+
+
++ 强制类型转换的形式进行获取Bean
++ 在获取时指明对应需要的Bean类型
++ 指明需要的Bean类型，依次来获取对象
+
+
+
+```java
+BookDao bookDao =（BookDao）ctx.getBean("bookDao");
+
+//强制类型转换的形式进行获取Bean
+
+BookDao bookDao = ctx.getBean("bookDao",BookDao.class);
+
+//在获取时指明对应需要的Bean类型
+
+BookDao bookDao = ctx.getBean(BookDao.class);
+
+//指明需要的Bean类型，依次来获取对象
+```
+
+
+
+### 3.也可用BeanFactory创建容器，但是用BeanFactory获取的所有的bean均为延迟加载
+# 三，对核心容器的总结：
+### 1.对Bean的总结：
+```java
+<bean
+id="bookDao"	//bean的Id
+
+ name="dao bookDaoImpl daoImpl"  //bean别名
+ 
+class="com.itheima.dao.impl.BookDaoImpl"	//bean类型，静态工厂类，FactoryBean类
+    
+ scope="singleton"	//控制bean的实例数量
+    
+init-method="init"	//生命周期初始化方法
+    
+destroy-method="destory"	//生命周期销毁方法
+    
+ autowire="byType"	//自动装配类型
+    
+factory-method="getInstance"	//bean工厂方法，应用于静态工厂或实例工厂
+    
+factory-bean="com.itheima.factory.BookDaoFactory"	//实例工厂bean
+    
+lazy-init="true"	//控制bean延迟加载
+    
+/>
+```
+
+
+
+### 2.对依赖注入方法的总结：
+```java
+<bean id="bookService" class="com.itheima.service.impl.BookServiceImpl">
+
+<constructor-arg name="bookDao" ref="bookDao"/>		//构造器注入引用类型
+<constructor-arg name="userDao" ref="userDao"/>
+
+<constructor-arg name="msg" value="wARN"/>		//构造器注入简单类型
+
+<constructor-arg type="java.lang.String" index="3" value="WARN"/>		//类型匹配与索引匹配
+
+<property name="bookDao" ref="bookDao"/>		//setter注入引用类型
+<property name="userDao" ref="userDao"/>
+
+<property name="msg" value="WARN"/>		//setter注入简单类型
+
+<property name="names">		//setter注入集合类型
+
+<list>		//list集合
+
+<value>itcast</value>		//集合注入简单类型
+
+<ref bean="dataSource"/>		//集合注入引用类型
+
+</list>
+
+</property>
+
+</bean>
+
+```
+
+
+
+# 四，纯注解开发配置Bean和容器：
+### 1.Spring提供@Component注解的三个衍生注解：
++ @Controller：用于表现层bean定义
++ @Service：用于业务层bean定义
++ @Repository：用于数据层bean定义
+
+**三种方式作用相同，名称不同是为了方便对程序的理解。**
+
+```java
+
+//前面指定用注解的方式创建Bean,括号中指定名称
+@Repository("bookDao")
+public class BookDaoImpl implements BookDao {
+}
+
+//不指定名称也可正常配置
+@Service
+public class BookServiceImpl implements BookService {
+}
+
+//配置完Bean后需要在核心配置文件中通过组件扫描加载bean，不扫描的话Spring并不知道配置的Bean是哪个，在哪
+<context:component-scan base-package="com.itheima"/>
+```
+
+
+
+注意：使用**@Component以及三个注解时**时，此时已经标注一个实现类配置为Bean，但是此时Spring框架并不知道配置的哪个实现类是Bean，所以要采用**<context:component-scan base-package="com.itheima"/>**来扫描对应的包，找到所配置的那个类。
+
+
+
+### 2.纯注解开发
+-   
+  Spring3.o开启了纯注解开发模式，使用Java类替代配置文件，开启了Spring快速开发赛道
+
++ **Java类代替Spring核心配置文件,**		@Configuration注解用于设定当前类为配置类		@ComponentScan注解用于设定扫描路径，此注解只能添加一次，多个数据请用数组格式
+
+```java
+//具体对应替代如下：
+<?xml version="1.o" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="
+http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans.xsd">
+</beans>
+
+
+//以上内容只需用如下代码代替即可：
+//下面是一个java配置类，用来代替xml配置文件，简化开发
+//@Configuration注解用于设定当前类为配置类
+@Configuration
+public class SpringConfig{
+}
+
+//此时原xml配置文件中的扫描步骤只需用一个注解即可代替：
+<context:component-scanbase-package="com.itheima"/>
+
+//扫描步骤对应注解为：
+@ComponentScan("com.itheima")
+    
+//此注解对应参数为String[]类型，传入多个参数时，只需加个大括号和逗号即可
+//@ComponentScan注解用于设定扫描路径，此注解只能添加一次，多个数据请用数组格式
+@ComponentScan({"com.itheima.service","com.itheima.dao"}) 
+    
+
+```
+
+
+
+**最终格式为：**
+
+```java
+//扫描一个包
+@Configuration    		//标志这是一个配置类
+@ComponentScan("com.itheima")   
+//扫描的作用是扫描包下的接口和类以及属性文件，不扫描的话Spring不知道所配置好的Bean在哪
+
+public class SpringConfig{
+    
+}
+
+
+//扫描多个包
+@Configuration
+@ComponentScan({"com.itheima.service","com.itheima.dao"})     
+//扫描的作用是扫描包下的接口和类以及属性文件,
+
+public class SpringConfig{
+    
+}
+```
+
+
+
+**读取Spring核心配置文件初始化容器对象切换为读取Java配置类初始化容器对象**
+
+```java
+//加载配置文件初始化容器
+ApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
+
+//加载配置类初始化容器，Annotation表示注解的意思
+ApplicationContext ctx = new AnnotationConfigApplicationContext(SpringConfig.class);
+```
+
+
+
+### 3.纯注解开发下的Bean的生命周期：
++ 使用**@Scope**定义bean**作用范围**	定义Bean是不是单例模式，
+
+```java
+@Repository
+@Scope("singleton")
+public class BookDaoImpl implements BookDao{
+}
+```
+
++ 使用**@PostConstruct，@PreDestroy**定义bean**生命周期**
+    - @PostConstruct:  构造方法后
+    - @PreDestroy：销毁方法前
+
+```java
+@Repository
+@Scope("singleton")
+public class BookDaoImpl implements BookDao {
+    public BookDaoImpl(){
+        System.out.println("book dao constructor...");
+    }
+    
+    @PostConstuct
+     public void init(){
+        System.out.println("book init ...");
+    }
+    
+    @PreDestroy
+     public void destroy(){
+        System.out.println("book destory ...");
+    }
+    
+}
+```
+
+
+
+### 4.纯注解模式下的Bean的依赖注入：
+#### 4.1使用@Autowiked注解开启自动装配模式（按类型）
+```java
+@Service
+public class BookServiceImpl implements BookService {
+    @Autowired   	//自动按类型装配
+  
+     private BookDao bookDao;
+
+    public void save() {
+        System.out.println("book service save ...");
+        bookDao.save();
+    }
+}
+```
+
++ 注意：自动装配基于反射设计创建对象并暴力反射对应属性为私有属性初始化数据，因此无需提供setter方法
++ 注意：自动装配建议使用无参构造方法创建对象（默认），如果不提供对应构造方法，请提供唯一的构造方法
+
+
+
+**若有多个相同类型的实现类对象，需要按名称装配Bean**
+
+
+
+#### 4.2使用@Qualifier注解开启指定名称装配bean
+```java
+@Service
+public class BookServiceImpl implements BookService {
+    @Autowired    //自动装配，默认是按类型匹配
+    @Qualifier("bookDao")   //此处利用注解指定要加载的Bean的名称
+     @Resource(name="")   //也是按名称装配
+    private BookDao bookDao;
+}
+```
+
+**注意：@Qualifier注解无法单独使用，必须配合@Autowired注解使用**
+
+
+
+#### 4.3简单类型的依赖注入：
+使用**@Value**实现简单类型注入
+
+```java
+@Repository("bookDao")
+public class BookDaoImpl implements BookDao {
+    @Value("100")   
+//直接@value指定值即可,但是这样的话相当于直接写到源码里面，
+//耦合性太高且与Private int numb=100;的写法相同。
+    private String connectionNum;
+}
+
+
+//应采用属性文件的方法来降低耦合性，通过加载属性文件来存入数据
+@Repository("bookDao")
+public class BookDaoImpl implements BookDao{
+    @Value("${name}")    //name的值来源于加载的属性文件
+    private String name;
+
+    public void save(){
+        System.out.println("book dao save ....." + name);
+    }
+}
+```
+
+
+
+**5.加载properties文件**
+
+使用**@PropertySource**注解加载properties文件
+
+```java
+@Configuration
+@ComponentScan("com.itheima")
+@PropertySource("classpath:jdbc roperties")    //里面写上属性文件名称
+public class SpringConfig {
+
+}
+//注意：路径仅支持单一文件配置，多文件请使用数组格式配置，不允许使用通配符*
+```
+
+
+
+五，Spring与Mybatis的注解方式整合
+
+1.属性文件：
+
+jdbc.properties:（数据库属性文件，分别是数据库驱动，数据库地址，用户名，用户密码）
+
+```java
+jdbc.driver=com.mysql.cj.jdbc.Driver
+
+jdbc.url=jdbc:mysql://localhost:3306/ssmdb?characterEncoding=utf8&useSSL=false&serverTimezone=UTC&rewriteBatchedStatements=true
+
+jdbc.username=root
+
+jdbc.password=123456
+```
+
+2.核心配置文件：
+
+Mybatis的核心配置文件（.xml文件转为class文件）
+
+```java
+//原本的代码如下：
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+//读取（加载）数据库属性文件（数据库驱动，数据库地址，用户名，用户密码）
+<configuration>
+    <properties resource="MySql.properties "></properties>
+
+    
+    //给配置文件指定包名，这样书写类型的时候，不用书写前面的包名，简化书写
+    <typeAliases>
+        <package name="JavaPojo"/>
+        <package name="JavaDao"/>
+    </typeAliases>
+
+    
+    //配置加载环境，指定数据源来源
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"></transactionManager>
+
+            <dataSource type="POOLED">
+                <property name="driver" value="${driver}"/>
+                <property name="url" value="${url}"/>
+                <property name="username" value="${username}"/>
+                <property name="password" value="${password}"/>
+            </dataSource>
+
+        </environment>
+
+    </environments>
+
+    //以上内容都是为SqlSessionFactory服务的，下面的是指定映射文件所在包的位置,所以Mybatis配置文件大体可分为两部分(转换为class文件与Spring整合时也就转换为了两个类！)
+    
+    
+    //扫描映射文件所在的包，获取映射文件
+    <mappers>
+        <mapper resource="LQYMapper/LQYStudentMapper.xml"/>
+        <mapper resource="LQYMapper/LQYBanjiWithStudent.xml"/>
+        <mapper class="JavaDao.StudentMapper"/>
+    </mappers>
+
+</configuration>
+
+```
+
+转换为的MybatisConfig文件如下所示：
+
+```java
+public class MybatisConfig {
+
+    //创建SqlSessionFactory对象，把该对象的创建权交给Spring,这样在调用其他方法时，Spring会自动创建SqlSessionFactory和SqlSession对象
+    //并在使用完后自动关闭，释放资源
+    @Bean
+    public SqlSessionFactoryBean getSqlSessionFactory(DataSource dataSource){
+        SqlSessionFactoryBean sfb=new SqlSessionFactoryBean();
+        sfb.setDataSource(dataSource);
+        return sfb;
+    }
+
+
+    //扫描映射文件包
+    @Bean
+    public MapperScannerConfigurer getPojoMapper(){
+        MapperScannerConfigurer msc=new MapperScannerConfigurer();
+        msc.setBasePackage("com.yan.dao");
+        return msc;
+    }
+
+}
+```
+
+
+
+
+
+# 
+
+
+# SSM框架整合具体步骤：
+**注意：使用框架整合时，因为是用框架帮助我们开发，所以对象都要依赖于框架里面的配置好的Bean，所有的对象都要从框架里面拿**
+
+## 一，SSM整合流程如下：
+### 1.创建工程
+首先创建新的SpringMvc项目，初始创建时会少一些文件，需要从File--->Project Structure------>Modules中对缺少的文件进行添加，在Marks as中，可以选择添加的包的类型。
+
+具体添加操作是：
+
+**在main包下添加：**
+
++ 一个java源文件包：指定为java源文件包（Marks as中浅蓝色的包类型Sources，**主要用来放置一些class文件，controlle，service，dao，impl，domain等都在这个包下，各种类和接口**）
++ 一个resources资源包：指定为Resources类型的资源包（用来放各种属性文件，xml类型的配置文件，mapper映射文件，properties类型的属性文件）
+
+**在src包下添加：**
+
++ 一个test文件包：用于放置一些开发中对service（业务层）的测试代码，测试业务层的功能能否正常执行。（普通文件包，不需单独指定类型）
+
+**在test包下添加：**
+
++ 一个装不同实体的测试代码的javatest包（包名可任意），类型为Marks as中的Tests类型，主要存一些对业务层（service）的测试代码，例如：StudentServiceTest，UserServiceTest.......
+
+### 2.SSM整合
++ Spring  
+    SpringConfig
++ MyBatis		MybatisConfig		JdbcConfig		jdbc.properties
++ SpringMVC		ServletConfig		SpringMvcConfig
+
+**注意：在配置依赖 javax.servlet-api 时：**
+
+```java
+    <dependency>
+      <groupId>javax.servlet</groupId>
+
+      <artifactId>javax.servlet-api</artifactId>
+
+      <version>3.1.0</version>
+
+<!--        provided：在编译时可用运行时不可用，test：正好相反-->
+<!--        使用servlet时需要配置他的scop属性为provide，否则会与tomcat7-maven-plugin的插件起冲突，无法运行-->
+<!--        为什么 scope=provided 是必要的？-->
+<!--        scope=provided 表示该依赖仅在编译和测试时需要，运行时由容器（如 Tomcat）提供。这样可以避免打包 Servlet API 到 WAR 文件中，从而防止与容器自带的 API 冲突。-->
+        <scope>provided</scope>
+
+    </dependency>
+
+    
+        不配置<scope>provided</scope>会出现A child container failed start错误
+```
+
+
+
+添加事务时：
+
+1. **权衡利弊**：
+
+在实际开发中，许多团队会选择在 Service 类上整体添加`@Transactional`注解，同时对特殊方法进行单独配置，这样既保证了代码的简洁性，又能满足不同业务场景的需求
+
+    - 对于所有方法都需要事务的 Service 类，类级别注解是很好的选择
+    - 对于只有部分方法需要事务的类，逐个方法添加注解更合适
+    - 默认传播行为是`REQUIRED`，通常适用于大多数业务场景
+    - 可以在类级别设置合适的传播行为
+        * 方法级别的`@Transactional`注解会覆盖类级别的配置
+        * 如示例中的`getUserById`方法使用了`readOnly=true`覆盖了类级别的配置
+
+```java
+@Service
+@Transactional(rollbackFor = Exception.class)
+public class UserServiceImpl implements UserService {
+    
+    @Autowired
+    private UserRepository userRepository;
+    
+    @Override
+    public void createUser(User user) {
+        // 自动在事务中执行
+        userRepository.save(user);
+    }
+    
+    @Override
+    public void updateUser(User user) {
+        // 自动在事务中执行
+        userRepository.save(user);
+    }
+    
+    @Override
+    public void deleteUser(Long id) {
+        // 自动在事务中执行
+        userRepository.deleteById(id);
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public User getUserById(Long id) {
+        // 覆盖类级别的事务配置，设置为只读事务
+        return userRepository.findById(id).orElse(null);
+    }
+}
+```
+
+
+
+### 3.功能模块
++ 表与实体类  
+dao（接口+自动代理）
++ service（接口+实现类）  
+业务层接口测试（整合JUnit）
++ controller  
+表现层接口测试（PostMan）
+

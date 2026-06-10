@@ -21,10 +21,13 @@ export default defineConfig({
         text: '☕ Java',
         collapsed: false,
         items: [
+          { text: 'JAVA 学习笔记', link: '/java/JAVA学习笔记' },
           { text: 'JavaSE 笔记', link: '/java/JavaSE' },
+          { text: 'JavaWeb 学习笔记', link: '/java/JavaWeb学习笔记' },
           { text: 'Mybatis 笔记', link: '/java/Mybatis' },
-          { text: 'Mybatis-Plus 问题汇总', link: '/java/Mybatis-Plus问题汇总' },
-          { text: 'Spring 笔记', link: '/java/Spring' }
+          { text: 'Mybatis-Plus 笔记', link: '/java/Mybatis-Plus问题汇总' },
+          { text: 'Spring 笔记', link: '/java/Spring' },
+          { text: 'Tlias 案例问题', link: '/java/Tlias案例问题' }
         ]
       },
       {
@@ -58,7 +61,22 @@ export default defineConfig({
         text: '🔧 工具',
         collapsed: false,
         items: [
-          { text: 'Git 核心概念', link: '/tools/Git 核心概念与操作总结' }
+          { text: 'Git 核心概念', link: '/tools/Git 核心概念与操作总结' },
+          { text: 'Docker 笔记', link: '/tools/Docker' }
+        ]
+      },
+      {
+        text: '🎨 前端',
+        collapsed: false,
+        items: [
+          { text: 'Vue 开发笔记', link: '/frontend/Vue开发' }
+        ]
+      },
+      {
+        text: '🐍 Python',
+        collapsed: false,
+        items: [
+          { text: 'Python 基础', link: '/python/Python基础' }
         ]
       },
       {
