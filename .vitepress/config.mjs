@@ -23,7 +23,6 @@ export default defineConfig({
         items: [
           { text: 'JAVA 学习笔记', link: '/java/JAVA学习笔记' },
           { text: 'JavaSE 笔记', link: '/java/JavaSE' },
-          { text: 'JavaWeb 学习笔记', link: '/java/JavaWeb学习笔记' },
           { text: 'Mybatis 笔记', link: '/java/Mybatis' },
           { text: 'Mybatis-Plus 笔记', link: '/java/Mybatis-Plus问题汇总' },
           { text: 'Spring 笔记', link: '/java/Spring' },
@@ -77,7 +76,8 @@ export default defineConfig({
         text: '🎨 前端',
         collapsed: false,
         items: [
-          { text: 'Vue 开发笔记', link: '/frontend/Vue开发' }
+          { text: 'Vue 开发笔记', link: '/frontend/Vue开发' },
+          { text: 'JavaWeb 学习笔记', link: '/java/JavaWeb学习笔记' }
         ]
       },
       {
