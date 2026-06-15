@@ -65,6 +65,14 @@ export default defineConfig({
           { text: 'Docker 笔记', link: '/tools/Docker' }
         ]
       },
+            {
+        text: '登录鉴权 & 网站攻击',
+        collapsed: false,
+        items: [
+          { text: '网站攻击方式', link: '/security/web-attack' },
+          { text: '登录鉴权', link: '/security/authentication' }
+        ]
+      },
       {
         text: '🎨 前端',
         collapsed: false,
