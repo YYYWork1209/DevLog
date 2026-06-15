@@ -69,7 +69,7 @@ export default defineConfig({
         collapsed: false,
         items: [
           { text: '网站攻击方式', link: '/security/web-attack' },
-          { text: '登录鉴权', link: '/security/authentication' }
+          { text: '登录鉴权', link: '/security/login-authentication' }
         ]
       },
       {
