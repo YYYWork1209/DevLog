@@ -1,3 +1,206 @@
+**极简Python速查备忘录**，有Java基础但长时间没用Python用来回顾复习。
+
+---
+
+### 1. 核心语法 (与Java的区别)
+
+- **缩进即大括号**：代码块靠**缩进**（通常4空格）区分，不用 `{}`。行末必须加 `:`。
+- **无分号**：行尾不需要 `;`。
+- **动态强类型**：变量无需声明类型，运行时确定；类型不匹配会报错（不会隐式强转）。
+- **一切皆对象**：连 `int`、`bool`、`函数` 都是对象，传递时传引用。
+- **逻辑运算符**：`&&` `||` `!` -> **`and`**、**`or`**、**`not`**。
+- **三目**：`条件 ? 真 : 假` -> **`真 if 条件 else 假`**。
+- **主入口**：Java是 `main` 方法，Python是文件级判断 `if __name__ == "__main__":`。
+
+---
+
+### 2. 基本数据类型 
+
+| 类别 | Python写法 | Java对比备注 (关键) |
+| :--- | :--- | :--- |
+| **整数** | `int` | **无长度限制**（不会溢出）。与Java `BigInteger`类似。 |
+| **浮点** | `float` | 对应Java `double`（只有双精度）。 |
+| **布尔** | `bool` (值为 `True` / `False`) | **首字母大写**，且是 `int` 的子类（`True=1`）。 |
+| **空值** | `None` | 对应Java `null`。 |
+| **字符串** | `str` | **不可变**。可用单引号 `'` 或双引号 `"`，**无char类型**（单字符也是str）。 |
+
+> **字符串必记语法**：
+> - **f-string**：`f"Hello {name}"`（最强格式化，相当于Java模板字符串）。
+> - **原始字符串**：`r"C:\Users"`（忽略转义，相当于Java不处理反斜杠）。
+> - **多行字符串**：`"""..."""`。
+
+---
+
+### 3. 核心容器数据结构 
+
+| 类型 | 语法 | 可变性 | 对应Java | 关键特性 |
+| :--- | :--- | :--- | :--- | :--- |
+| **列表 (List)** | `[1, 2, 3]` | **可变** | `ArrayList` | 可存任意类型，动态长度。 |
+| **元组 (Tuple)** | `(1, 2, 3)` 或 `1,2,3` | **不可变** | `List.of(...)` 不可变版 | 性能优于列表，可作为字典键。 |
+| **字典 (Dict)** | `{"a": 1, "b": 2}` | **可变** | `HashMap` | 键可为任意不可变类型（不仅是字符串）。 |
+| **集合 (Set)** | `{1, 2, 3}` | **可变** | `HashSet` | 无序、去重。 |
+
+> **易忘点**：空字典是 `{}`，空集合**不能**用 `{}`（那是空字典），必须用 `set()`。
+
+---
+
+### 4. 常用语法片段 
+
+**条件判断**（无 `switch`，用 `elif`）：
+```python
+if x > 0:
+    pass          # 占位符，相当于空语句
+elif x == 0:
+    print("zero")
+else:
+    pass
+```
+
+**循环**（无 Java 的 `for(int i;;)`，只有 `for-in`）：
+```python
+# 遍历数字 0~4
+for i in range(5):     # range(5) -> [0,1,2,3,4]
+    print(i)
+
+# 遍历列表
+for item in my_list:
+    print(item)
+
+# 带索引遍历（Java的带下标for）
+for idx, value in enumerate(my_list):
+    print(idx, value)
+
+# while循环（同Java）
+while condition:
+    pass
+```
+
+**函数定义**（无重载，同名函数后者覆盖前者）：
+```python
+def add(a, b=0):          # 默认参数（相当于Java重载简写）
+    return a + b
+
+def greet(name: str) -> str:  # 类型注解（仅提示，不强制，FastAPI用）
+    return f"Hello {name}"
+
+# 可变参数 (*args 收元组, **kwargs 收字典)
+def test(*args, **kwargs):
+    pass
+```
+
+**类与对象**（无 `new` 关键字，构造器用 `__init__`）：
+```python
+class Person:
+    # 类变量（相当于Java static）
+    species = "Human"
+
+    # 构造器（self 相当于 Java 的 this，但必须显式写在形参第一位）
+    def __init__(self, name):
+        self.name = name    # 实例变量直接动态挂载
+
+    def say(self):
+        return self.name
+# 实例化：p = Person("Tom")   # 不用 new
+```
+
+---
+
+### 5. 异常处理（与Java异同）
+
+- 语法：`try...except...else...finally`（Java是 `catch`，Python用 `except`）。
+- 捕获所有异常：`except Exception as e:`（记得加 `as e` 取实例）。
+- **没有 `throws` 关键字**（函数签名不需要声明抛出异常，全靠自觉）。
+
+```python
+try:
+    risky()
+except ZeroDivisionError as e:
+    print(e)
+else:                # 没异常时执行
+    print("ok")
+finally:
+    print("clean")
+```
+
+---
+
+### 6. Python 独有的实用特性（捡回来用）
+
+- **切片 (Slice)**：`list[0:10:2]`（起始:结束:步长），字符串、元组通用。
+- **解包 (Unpacking)**：`a, b = (1, 2)` 或 `a, *rest = [1,2,3]`（Java无此语法）。
+- **列表推导式 (Comprehension)**：`[x*2 for x in range(10) if x%2==0]`（秒杀Java流式，常用）。
+- **链式比较**：`if 0 < a < 10:`（Java必须拆成 `&&`）。
+
+---
+
+### 备注
+
+- 忘记类型？用 `type(var)` 查看。
+- 忘记方法？用 `dir(var)` 查看所有属性和方法，用 `help(var)` 查看文档。
+- 导包：`import math` 或 `from math import sqrt`（相当于Java的 `import static`）。
+- 变量作用域：函数内默认读写局部变量，要修改外部全局变量需加 `global`，修改嵌套函数变量需加 `nonlocal`（这个容易忘，遇到闭包再查）。
+
+
+# Python中的类型提示
+**Python 本身不强制要求定义类型，但在 FastAPI 中，强烈建议（且必须）定义类型才能发挥其核心功能。**
+
+### 1. Python 语言的本质：动态类型（不需要定义）
+从 Python 语言的底层机制来说，**变量确实不需要定义类型**。以下代码完全合法且能正常运行：
+
+```python
+# 变量可以随时改变类型
+a = 1          # 现在是 int
+a = "hello"    # 现在是 str
+a = [1, 2, 3]  # 现在是 list
+```
+
+因为在运行时，Python 解释器只关心对象本身的类型，不关心变量声明时的类型。所以，**如果你写纯 Python 脚本，不定义类型完全 OK**。
+
+---
+
+### 2. Python 的类型提示（Type Hints）：可选定义（不需要强制）
+Python 3.5+ 引入了类型提示（如 `def read_item(item_id: int)`），但这**仅仅是“注解”**，不会影响代码的实际运行逻辑。
+
+- 如果你写了 `item_id: int`，但传入了字符串 `"abc"`，Python 解释器**不会报错**，程序依然会跑（除非代码内部做了类型校验）。
+- 它主要服务于**代码编辑器**（如 VSCode、PyCharm）的智能补全和静态检查工具（如 `mypy`）。
+
+---
+
+### 3. 为什么在 FastAPI 中必须定义类型？
+虽然 Python 不强制，但 **FastAPI 强依赖这些类型注解来实现核心功能**。如果你不在 FastAPI 的路由中定义类型，它会失去两大杀手锏：
+
+- **请求数据的自动校验与转换**：当你定义 `item_id: int` 时，FastAPI 会自动把 URL 中的字符串 `"123"` 转为整数 `123`，如果传了 `"abc"` 它会自动返回 422 校验错误（无需你写 `try...except`）。
+- **自动生成交互式 API 文档**（Swagger UI 和 ReDoc）：FastAPI 会读取这些类型注解，自动生成清晰的参数说明和 JSON Schema。
+
+**结论**：在 FastAPI 中，**为了享受自动校验和文档生成，你“必须”定义类型**，否则框架不知道如何解析和验证传入的数据。
+
+---
+
+### 为了更直观，举一个反例：
+
+```python
+# 不定义类型（虽然 Python 能跑，但 FastAPI 失去校验能力）
+@app.get("/items/{item_id}")
+def read_item(item_id):  # 没写类型
+    return {"item_id": item_id, "double": item_id * 2}
+# 如果访问 /items/5，返回 {"item_id":"5","double":"55"}（字符串乘法，不是你想要的）
+```
+
+```python
+# 定义类型（FastAPI 生效）
+@app.get("/items/{item_id}")
+def read_item(item_id: int):  # 写了 int
+    return {"item_id": item_id, "double": item_id * 2}
+# 如果访问 /items/5，返回 {"item_id":5,"double":10}（整数乘法，符合预期）
+```
+
+---
+
+### 总结一句话：
+- **纯 Python 环境**：数据类型**不需要**定义。
+- **FastAPI 环境**：数据类型的定义**不是给 Python 解释器看的，而是给 FastAPI 框架做校验和文档用的**。为了框架正常运转，**必须定义**。
+
+---
 
 
 #  遍历集合时直接删除元素，导致集合大小变化，破坏迭代器  
@@ -30,7 +233,7 @@ RuntimeError: Set changed size during iteration
 
 
 
- 核心原因是：**<font style="color:rgb(28, 31, 35);background-color:rgba(0, 0, 0, 0);">在遍历集合（set）的过程中直接修改了集合的大小（删除元素）</font>**，会破坏迭代器的正常工作，导致 Python 抛出运行时错误  
+ 核心原因是：**在遍历集合（set）的过程中直接修改了集合的大小（删除元素）**，会破坏迭代器的正常工作，导致 Python 抛出运行时错误  
 
 
 
