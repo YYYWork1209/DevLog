@@ -1461,3 +1461,51 @@ dao（接口+自动代理）
 + controller  
 表现层接口测试（PostMan）
 
+
+# 定义前后端交互规范(RESTFul)
+``` java
+/**
+ * 响应结果实体类,用于封装响应结果
+ * 包含状态码、消息和数据
+ * 状态码: 200 成功, 500 失败
+ * 消息: 成功或失败的描述
+ * 数据: 成功时返回的数据列表
+ * 提供成功和失败的静态方法,用于快速创建成功或失败的响应结果
+ * @param <T>
+ */
+@Data
+@AllArgsConstructor
+@Builder
+public class Result<T> {
+    private String code;
+    private String message;
+    private List<T> data;
+
+    public static <E> Result<E> success() {
+        return Result.<E>builder()
+                .code("200")
+                .message("成功")
+                .data(List.of())
+                .build();
+    }
+    
+    public static <E> Result<E> success(List<E> data) {
+        return Result.<E>builder()
+                .code("200")
+                .message("成功")
+                .data(data)
+                .build();
+    }
+    
+    public static <E> Result<E> error(String message) {
+        return Result.<E>builder()
+                .code("500")
+                .message(message)
+                .data(List.of())
+                .build();
+    }
+
+}
+```
+> **注意**：静态方法的泛型 `<E>` 与类上的 `<T>` 是独立的，静态方法必须自己声明泛型，不能直接使用类上定义的泛型。详见 JavaSE 笔记中"静态方法的泛型与类的泛型"一节。
+

@@ -88,6 +88,13 @@ export default defineConfig({
         ]
       },
       {
+        text: '📁 项目',
+        collapsed: false,
+        items: [
+          { text: 'Furbaby-Inn 项目', link: '/project/Furbaby-Inn' }
+        ]
+      },
+      {
         text: '📒 参考',
         collapsed: true,
         items: [
