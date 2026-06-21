@@ -431,6 +431,8 @@ if (response.status === 200) {
 如果你在业务方法中使用了 `@Async、CompletableFuture `等，子线程会丢失父线程的 `ThreadLocal` 变量。
 此时需要用 `InheritableThreadLocal` 并配合在线程池中传递上下文（如 Spring 的 `TaskDecorator`），或者使用专门的上下文传播机制（比如阿里 `TransmittableThreadLocal`）。
 
+**例如后续进行优化并发量或者AI响应流程会采用异步方式。也需要注意该问题**
+
 ### 改为使用Spring Security进行鉴权以及信息传递
 - 高并发情况
   - 自动清理：Spring Security 的 SecurityContextHolder 默认使用 ThreadLocal 策略，但它的过 滤器链末尾会自动调用 SecurityContextHolder.clearContext()，杜绝残留。
@@ -442,6 +444,7 @@ if (response.status === 200) {
   仍然需要在 Feign/RestTemplate 中把 JWT 向下游传递，然后在每个服务中用 Spring Security 相同的上下文方式处理即可
 
 **原先拦截器+JWT+ThreadLocal** 与 **Spring Security** 方案在开发上的区别
+**主要是SpringSecurity把很多需要手动处理的地方进行了封装**
 
 ---
 
@@ -464,3 +467,38 @@ if (response.status === 200) {
 **把“手写安全上下文 + 手动清理 + 手写鉴权”全部替换为“标准化过滤器链 + 自动生命周期管理 + 声明式权限控制”，让分布式下的上下文传递从“自行保证”变为“框架保障”。**
 
 ---
+
+## 前后端联调出现转发问题，前端请求转发不到后端
+**请求链路**
+
+1. `src/api/request.js:14` => `axios `实例的 `baseURL: '/api'`
+2. `src/api/user.js:17` => 调用 `request.post('/user/login', params)` =>最终请求路径为` /api/user/login`
+
+3. `vite.config.js:14-18` — Vite 配置了代理，将 /api 前缀的请求转发到 `http://localhost:8080`
+
+**浏览器显示 `localhost:5173 `是正常的！**
+
+在浏览器 Network 面板看到` http://localhost:5173/api/user/login `不是问题。Vite 代理是服务端转发——浏览器永远只跟 `Vite dev server（5173`）通信，Vite 在服务端悄悄把请求转发给 8080，浏览器完全不知道代理的存在。这是正确行为。
+
+**404 的真正原因**
+
+你的 Vite 代理配置本身语法没有问题。404 的原因大概率是以下之一：
+
+1. **后端 Gateway（8080 端口）没有启动**  
+这是最常见的原因。请确认你的 Spring Cloud Gateway 是否正在 8080 端口运行：
+`netstat -ano | findstr :8080`
+
+2. **Vite 没有重启**  
+修改 vite.config.js 后必须重启 Vite dev server，代理配置只在启动时加载。
+
+
+3. **后端没有 /api/user/login 这个路由**  
+代理会把 /api/user/login 原样转发到 http://localhost:8080/api/user/login。如果你的 Gateway 路由配置里没有匹配 /api/user/login 的规则，后端也会返回 404。
+---
+
+**排查步骤**
+
+1. 先确认后端 8080 是否在运行
+2. 重启 Vite dev server（Ctrl+C 后重新 npm run dev）
+3. 用 curl/Postman 直接请求 http://localhost:8080/api/user/login，看后端是否正常响应
+
