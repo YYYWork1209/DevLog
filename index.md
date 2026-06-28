@@ -8,7 +8,7 @@ hero:
   actions:
     - theme: brand
       text: 📖 开始阅读
-      link: /java/JavaSE
+      link: /java/JAVA学习笔记
     - theme: alt
       text: 👤 关于我
       link: /about
@@ -16,17 +16,22 @@ hero:
 features:
   - icon: ☕
     title: Java 后端
+    link: /java
     details: Spring Boot、MyBatis-Plus、Spring Cloud 微服务框架的实战笔记与源码分析
   - icon: 🔧
     title: 中间件
+    link: /microservices
     details: Redis、RabbitMQ、Nacos、Sentinel 等常用中间件的使用记录与踩坑总结
   - icon: 🤖
     title: AI Agent
+    link: /ai-agent
     details: Spring AI、Spring AI Alibaba、ReAct 架构等 AI Agent 技术探索
   - icon: 🎨
     title: 前端开发
+    link: /frontend
     details: Vue 3、Element Plus、Vite、TypeScript 等前端技术实战笔记
   - icon: 🐳
     title: 工具 & DevOps
+    link: /tools
     details: Git、Docker、Nginx 等开发运维工具的使用总结
 ---
