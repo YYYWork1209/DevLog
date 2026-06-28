@@ -33,8 +33,8 @@ export default defineConfig({
         text: '🗄️ 数据库',
         collapsed: false,
         items: [
-          { text: 'MySQL 面试题', link: '/database/MySql面试题' },
-          { text: 'Redis 面试', link: '/database/Redis面试' }
+          { text: 'MySQL', link: '/database/MySql' },
+          { text: 'Redis', link: '/database/Redis' }
         ]
       },
       {
@@ -77,7 +77,7 @@ export default defineConfig({
         collapsed: false,
         items: [
           { text: 'Vue 开发笔记', link: '/frontend/Vue开发' },
-          { text: 'JavaWeb 学习笔记', link: '/java/JavaWeb学习笔记' }
+          { text: 'JavaWeb 学习笔记', link: '/frontend/JavaWeb学习笔记' }
         ]
       },
       {
