@@ -16,22 +16,22 @@ hero:
 features:
   - icon: ☕
     title: Java 后端
-    link: /java
+    link: /java/JAVA学习笔记
     details: Spring Boot、MyBatis-Plus、Spring Cloud 微服务框架的实战笔记与源码分析
   - icon: 🔧
     title: 中间件
-    link: /microservices
+    link: /microservices/RabbitMQ实践问题
     details: Redis、RabbitMQ、Nacos、Sentinel 等常用中间件的使用记录与踩坑总结
   - icon: 🤖
     title: AI Agent
-    link: /ai-agent
+    link: /ai-agent/OnCallAgent
     details: Spring AI、Spring AI Alibaba、ReAct 架构等 AI Agent 技术探索
   - icon: 🎨
     title: 前端开发
-    link: /frontend
+    link: /frontend/JavaWeb学习笔记
     details: Vue 3、Element Plus、Vite、TypeScript 等前端技术实战笔记
   - icon: 🐳
     title: 工具 & DevOps
-    link: /tools
+    link: /tools/Docker
     details: Git、Docker、Nginx 等开发运维工具的使用总结
 ---
