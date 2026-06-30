@@ -18,6 +18,14 @@ export default defineConfig({
 
     sidebar: [
       {
+        text: '🐍 Python',
+        collapsed: false,
+        items: [
+          { text: 'Python 基础', link: '/python/Python基础' },
+          { text: 'LangChain&LangGraph', link: '/python/LangChain&LangGraph.md'}
+        ]
+      },
+      {
         text: '☕ Java',
         collapsed: false,
         items: [
@@ -50,10 +58,7 @@ export default defineConfig({
         collapsed: false,
         items: [
           { text: 'SpringAI 问题汇总', link: '/ai-agent/SpringAI问题汇总' },
-          { text: 'OnCallAgent', link: '/ai-agent/OnCallAgent' },
-          { text: 'RAG 知识库检索优化', link: '/ai-agent/RAG知识库检索优化' },
-          { text: 'RAG 流程自定义增强', link: '/ai-agent/RAG流程自定义增强' },
-          { text: 'AI 客服系统设计', link: '/ai-agent/AI客服系统设计' }
+          { text: 'LangChain&LangGraph', link: '/python/LangChain&LangGraph.md'}
         ]
       },
       {
@@ -80,18 +85,13 @@ export default defineConfig({
           { text: 'JavaWeb 学习笔记', link: '/frontend/JavaWeb学习笔记' }
         ]
       },
-      {
-        text: '🐍 Python',
-        collapsed: false,
-        items: [
-          { text: 'Python 基础', link: '/python/Python基础' }
-        ]
-      },
+
       {
         text: '📁 项目',
         collapsed: false,
         items: [
-          { text: 'Furbaby-Inn 项目', link: '/project/Furbaby-Inn' }
+          { text: 'Furbaby-Inn 项目', link: '/project/Furbaby-Inn' },
+          { text: 'AI 客服系统设计', link: '/ai-agent/AI客服系统设计' }
         ]
       },
       {
