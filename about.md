@@ -2,14 +2,14 @@
 
 ## 👋 Hey，我是闫金超
 
-软件工程专业在读，专注于 **Java 后端开发**。
+软件工程专业在读，专注于 **Java 后端开发**与**Python Agent开发**。
 
 ## 🛠 技术栈
 
 | 方向 | 技术 |
 |------|------|
 | **语言** | Java（主力）、Python（学习中） |
-| **框架** | Spring Boot、Spring Cloud、MyBatis-Plus |
+| **框架** | Spring Boot、Spring Cloud、MyBatis-Plus、LangChain、LangGraph、FastAPI|
 | **中间件** | Redis、RabbitMQ、Nacos、Sentinel |
 | **AI Agent** | Spring AI、Spring AI Alibaba、ReAct 架构 |
 | **工具** | Git、Docker、Linux |
