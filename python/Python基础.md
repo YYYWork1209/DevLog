@@ -379,7 +379,17 @@ else:
 # 关于TypedDict类型的字典与普通字典的区别
 我们可以依据需求使用TypedDict进行自定义的字典类型，让我们在开发的时候可以看到友好提示以及提醒。
 
-它就是一个**“定制化的、带有使用说明书的”**字典。
+它就是一个**“定制化的、带有使用说明书的”**字典。格式如下：
+```python
+from typing import TypedDict, List
+
+# 定义全局状态的数据结构
+class AgentState(TypedDict):
+    messages: List[str]      # 对话历史
+    current_task: str        # 当前任务
+    final_answer: str        # 最终答案
+    # ... 任何其他需要追踪的状态
+```
 
 使用时与普通字典有什么区别：
  - **在程序运行时（Runtime），没有任何区别；**
