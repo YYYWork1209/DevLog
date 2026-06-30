@@ -20,12 +20,12 @@ features:
     details: Spring Boot、MyBatis-Plus、Spring Cloud 微服务框架的实战笔记与源码分析
   - icon: 🔧
     title: 中间件
-    link: /microservices/RabbitMQ实践问题
+    link: /microservices/SpringCloud中间件
     details: Redis、RabbitMQ、Nacos、Sentinel 等常用中间件的使用记录与踩坑总结
   - icon: 🤖
     title: AI Agent
-    link: /ai-agent/OnCallAgent
-    details: Spring AI、Spring AI Alibaba、ReAct 架构等 AI Agent 技术探索
+    link: /python/LangChain&LangGraph
+    details: Spring AI、Spring AI Alibaba、LangChain、LangGraph 架构等 AI Agent 技术探索
   - icon: 🎨
     title: 前端开发
     link: /frontend/JavaWeb学习笔记
