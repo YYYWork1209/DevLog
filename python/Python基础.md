@@ -498,6 +498,15 @@ num_list = [1,2,3,4]
 new_list = [1**2 for i in num_list if i % 2 == 0]
 ```
 
+**注意**：for循环遍历字典时，默认只遍历键值，若是遍历两个值，则需要使用`字典.items()`
+```python
+# 如果写 self.tools.items()：每次拿出('get_weather', {'description': ...})，这是两个元素，正好放进 name 和 info 
+# 如果写 self.tools：每次只拿出 'get_weather'（一个字符串），Python 试图把它拆成 name 和 info 两个变量，但字符串只有一个元 素，直接报错：
+
+[f"- {name}:{info['description']}" for name,info in self.tools.items()]
+
+```
+
 ## 函数相关
 python中函数命名一般结合`_`进行命名，与java不同的是，python的函数可以之间返回多个返回值，最终返回值会封装到元组中。
 ### 局部变量与全局变量
