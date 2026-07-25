@@ -479,6 +479,35 @@ state: AgentState = {
 {}表示，但是空集合不能用{}定义，只能用()，setExample = set()，使用{}定义出来的是空字典，有初始值的是使用{}定义，setExample = {1，2，3}
 - Dict：无序，不用索引，key：value形式，不能重复{}表示
 
+### Str相关方法
+#### re模块中的正则匹配方法
+- `re.match()`: 必须从文本的第一个字符开始匹配，如果开头对不上，直接报错放弃，检查字符串是否以特定前缀开头,比如检查是否以`Error:`开头
+- `re.search`: 扫描整个文本，只要在任何一个位置找到符合规则的内容，就立马成功并返回
+示例如下：
+```python
+# 以下是从大模型返回结果中提取信息的代码
+    def _parse_output(self, text: str):
+        """解析LLM的输出，提取Thought和Action。
+        """
+        # Thought: 匹配到 Action: 或文本末尾
+        thought_match = re.search(r"Thought:\s*(.*?)(?=\nAction:|$)", text, re.DOTALL)
+        # Action: 匹配到文本末尾
+        action_match = re.search(r"Action:\s*(.*?)$", text, re.DOTALL)
+        thought = thought_match.group(1).strip() if thought_match else None
+        action = action_match.group(1).strip() if action_match else None
+        return thought, action
+
+    def _parse_action(self, action_text: str):
+        """解析Action字符串，提取工具名称和输入。
+        """
+        match = re.match(r"(\w+)\[(.*)\]", action_text, re.DOTALL)
+        if match:
+            return match.group(1), match.group(2)
+        return None, None
+```
+- `re.DOTALL`：re模块中的一个常量标志，作用是让正则中的`.`也能匹配到换行符，避免模型返回多行Thought内容时一般为换行符而提取中止匹配，导致提取信息不全
+
+
 ### 组包与解包
 - 只有元组可以直接进行组包：`t = 1,2,3,4`等效于`t = (1,2,3,4)`
 - 解包是使用*进行数据解包：
