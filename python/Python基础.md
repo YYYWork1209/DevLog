@@ -480,6 +480,9 @@ state: AgentState = {
 - Dict：无序，不用索引，key：value形式，不能重复{}表示
 
 ### Str相关方法
+
+- `strip`:去除字符串中多余的空格和换行符
+
 #### re模块中的正则匹配方法
 - `re.match()`: 必须从文本的第一个字符开始匹配，如果开头对不上，直接报错放弃，检查字符串是否以特定前缀开头,比如检查是否以`Error:`开头
 - `re.search`: 扫描整个文本，只要在任何一个位置找到符合规则的内容，就立马成功并返回
@@ -500,6 +503,7 @@ state: AgentState = {
     def _parse_action(self, action_text: str):
         """解析Action字符串，提取工具名称和输入。
         """
+        # 这里(.*)匹配时会把后续字符包括]都匹配进去，后续发现需要一个]结尾，后面又没有字符了，就把字符串匹配的结尾回溯到最后一个]的前面
         match = re.match(r"(\w+)\[(.*)\]", action_text, re.DOTALL)
         if match:
             return match.group(1), match.group(2)
