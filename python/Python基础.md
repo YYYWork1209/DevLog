@@ -482,6 +482,26 @@ state: AgentState = {
 ### Str相关方法
 
 - `strip`:去除字符串中多余的空格和换行符
+- `split`:按指定符号分割字符串，不包括作为分割的字符，分割好的数据为数组。
+- `literal_eval()`:从字符串中解析：
+    - 字符串、字节串、数字（整数/浮点数/复数）
+    - 布尔值（True/False）、空值（None）
+    - 元组、列表、字典、集合
+    - 以及由以上几种类型嵌套组成的结构  
+    **不会解析执行恶意代码**
+    ```python
+        import ast
+
+        # 危险操作（绝不要用 eval 处理用户输入）
+        # eval("__import__('os').system('rm -rf /')")  # 这行会直接删库，极其危险！
+
+        # 使用 literal_eval 处理同样的恶意字符串
+        try:
+            ast.literal_eval("__import__('os').system('rm -rf /')")
+        except ValueError as e:
+            print(f"被拦截了，报错原因：{e}")
+            # 输出：ValueError: malformed node or string: <_ast.Call object at 0x...>
+    ```
 
 #### re模块中的正则匹配方法
 - `re.match()`: 必须从文本的第一个字符开始匹配，如果开头对不上，直接报错放弃，检查字符串是否以特定前缀开头,比如检查是否以`Error:`开头
