@@ -564,6 +564,42 @@ new_list = [1**2 for i in num_list if i % 2 == 0]
 
 ```
 
+## 循环相关
+- range(): （控制次数，与记录内容无关）
+- reversed()：作用是反向迭代，直接从最后一个元素开始往前取，不生成任何索引或数字。
+- enumerate()：“自动创建一个从 0 开始的计数器”的函数。
+```python
+for i in range(3):   # 纯粹数数：0, 1, 2
+    print("跑第", i, "圈")
+# 输出：跑第 0 圈 / 跑第 1 圈 / 跑第 2 圈
+# 完全不关心列表里有什么，只管跑满 3 次就停。
+
+for record in reversed(self.records):  # record 直接是 C, B, A
+    print(record)
+# 输出：C / B / A
+# 想知道它是倒数第几个？拿不到，因为没有计数器。
+
+for idx, record in enumerate(self.records):  # idx 是 0,1,2；record 是 A,B,C
+    print(f"第{idx}个是{record}")
+# 输出：第0个是A / 第1个是B / 第2个是C
+# 想要倒着拿并带编号？那就得套起来用。
+```
+
+例如，从列表 self.records 的**末尾往前遍历**，找到最近（最后）一条 type 为 'execution' 的记录，并立即返回它的 'content'。
+```python
+    for record in reversed(self.records):
+        if record['type'] == 'execution':
+            return record['content']
+```
+想在**反向遍历时获取索引**（比如想知道它是倒数第几个），需要搭配 enumerate 使用：
+```python
+    # 反向遍历并获取索引（从0开始计数）
+    for index, record in enumerate(reversed(self.records)):
+        if record['type'] == 'execution':
+            print(f"找到了！这是倒数第 {index+1} 条记录")  # index 就是那个从0开始的计数器
+            return record['content']
+```
+
 ## 函数相关
 python中函数命名一般结合`_`进行命名，与java不同的是，python的函数可以之间返回多个返回值，最终返回值会封装到元组中。
 
