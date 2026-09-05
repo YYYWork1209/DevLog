@@ -22,6 +22,9 @@ export default defineConfig({
         collapsed: false,
         items: [
           { text: 'Python 基础', link: '/python/Python基础' },
+          { text: 'Python 中的类型', link: '/python/python中的类型' },
+          { text: '类、静态、实例方法', link: '/python/python的类、静态、实例方法' },
+          { text: '常用方法', link: '/python/常用方法' },
           { text: 'LangChain&LangGraph', link: '/python/LangChain&LangGraph.md'}
         ]
       },
@@ -58,6 +61,7 @@ export default defineConfig({
         collapsed: false,
         items: [
           { text: 'SpringAI 问题汇总', link: '/ai-agent/SpringAI问题汇总' },
+          { text: 'Python Agent 设计', link: '/ai-agent/PythonAgent的设计' },
           { text: 'LangChain&LangGraph', link: '/python/LangChain&LangGraph.md'}
         ]
       },
