@@ -504,7 +504,7 @@ importance_weight是针对于记忆的基础记忆重要性分值，然后timede
 ##### 语义记忆的检索
 语义记忆的检索实现了混合搜索策略，结合了向量检索的语义理解能力和图检索的关系推理能力
 
-先分别去向量数据库和图数据库去查询相关的记忆列表，然后对记忆列表进行整合，最后依据权重计算总得分，返回排序后的记忆结果。
+先分别去**向量数据库和图数据库**去查询相关的记忆列表，然后对记忆列表进行整合，最后依据权重计算总得分，返回排序后的记忆结果。
 
 语义记忆的评分公式为：(向量相似度 × 0.7 + 图相似度 × 0.3) × (0.8 + 重要性 × 0.4)。这种设计的核心思想是：
 
@@ -562,7 +562,65 @@ def _combine_and_rank_results(self, vector_results, graph_results, query, limit)
     return sorted_results[:limit]
 ```
 
+语义记忆的评分公式为：(向量相似度 × 0.7 + 图相似度 × 0.3) × (0.8 + 重要性 × 0.4)。这种设计的核心思想是：
+
+向量检索权重（0.7）：语义相似度是主要因素，确保检索结果与查询语义相关
+图检索权重（0.3）：关系推理作为补充，发现概念间的隐含关联
+重要性权重范围[0.8, 1.2]：避免重要性过度影响相似度排序，保持检索的准确性
+
+---
+#### 4. 感知记忆
+
+感知记忆支持文本、图像、音频等多种模态的数据存储和检索。它采用了模态分离的存储策略，为不同模态的数据创建独立的向量集合，这种设计避免了维度不匹配的问题，同时保证了检索的准确性
+
+存入数据时，依据后缀进行对应数据类型的处理，文本，图片，音频各自使用对应的处理策略
+- 图片直接通过视觉编码器变成向量 
+- 音频直接通过音频编码器变成向量
+- 视频则是使用专门的video模态或者使用以下方式：
+    1. 视频是一帧一帧图片加上音频组成的
+    2. 分别使用视觉和听觉编码器把视频向量化，然后保存到同一组数据中，作为该视频的向量，存储时把视频拆成“关键帧向量(CLIP)”+“音频向量(CLAP)”+“字幕向量(Text)”，检索时分别检索后做加权融合（例如 RRF 算法）
+- 使用图片或者视频，音频模型把文件进行转换为文本描述向量再进行存入向量库（该项目未使用这种方法）
+
+##### 文本类问题怎么对应到图片与视频呢
+例如我们发出的问题分别是给我一首关于小猫的音频，小猫的图片，学习python的视频。
+
+我们使用的视觉和音频编码器训练时，让“猫的图片向量”和“猫的文字向量”在数学上距离很近。CLIP有独立的文本编码器和图像编码器，但训练目标是把配对数据（图-文）拉近。CLAP同理（音-文）
+
+所以，当你输入文本 "一张关于小猫的图片" 时：
+1. 文本通过 CLIP的文本编码器 变成向量 V_text。
+2. 系统去图片向量库（perceptual_image）中搜索。
+3. 因为训练时对齐过，V_text 会与库中“小猫图片”的向量 V_image 余弦相似度极高，直接匹配成功
+
+**针对本项目中的感知记忆如何确定一次检索需要对应的模态类型呢？**
+
+**1.该项目采用的是传入查询参数时，就指定对应的查询模态库：**
+```python
+query_vector = self._encode_data(query, query_modality)  # 假设 query_modality="text"
+store = self._get_vector_store_for_modality(target_modality or query_modality) 
+# 假设 target_modality="audio"，拿到的 store 是 perceptual_audio，维度是 self._audio_dim
+```
+
+**2.对于查询使用的文本，查哪个库，就用哪个模型去编码文本**
+
+- 如果 _encode_data 用的是普通的 text_embedder（输出维度可能是 768 或 1536），即转换后的查询文本向量维度是768或1536。
+- 但存储音频的知识库 perceptual_audio 存储是基于 CLAP 的，维度可能是 512（不同模型维度不同）
+- **导致查询结果错误！**
+
+例如去文本库查数据要使用文本编码器进行编码，图片库使用图片编码器进行编码，视频音频使用对应的编码器进行编码：
+
+```python
+def _encode_data(self, query, target_modality):
+    if target_modality == "image":
+        return self._clip_model.encode_text(query)  # CLIP文本编码器
+    elif target_modality == "audio":
+        return self._clap_model.encode_text(query)  # CLAP文本编码器
+    else:
+        return self.text_embedder.encode(query)     # 通用文本编码器
+```
+
 感知记忆的评分公式为：(向量相似度 × 0.8 + 时间近因性 × 0.2) × (0.8 + 重要性 × 0.4)。感知记忆的评分机制还支持跨模态检索，通过统一的向量空间实现文本、图像、音频等不同模态数据的语义对齐。当进行跨模态检索时，系统会自动调整评分权重，确保检索结果的多样性和准确性。此外，感知记忆中的时间近因性计算采用了指数衰减模型
+
+---
 
 ### 四种记忆类型中的时间性计算方式
 
@@ -638,4 +696,102 @@ def _calculate_recency_score(self, timestamp: str) -> float:
 
 这种时间衰减模型模拟了人类记忆中的遗忘曲线，确保了感知记忆系统能够优先检索到时间上更相关的记忆内容。
 
+## RAG 系统的设计
+RAG是用来进行补充检索需要的信息的，检索增强生成指的就是他。
+
+具体步骤是我们先对传入的知识库文件进行分段存储，作为知识库，后续智能体需要数据时来对应知识库中进行搜寻需要的内容，得到之后进行整理，最终返回答案。
+
+这里的每一层处理都是分开进行模块化设计的，方便后续进行拓展甚至是替换
+```python
+用户层：RAGTool统一接口
+  ↓
+应用层：智能问答、搜索、管理
+  ↓  
+处理层：文档解析、分块、向量化
+  ↓
+存储层：向量数据库、文档存储
+  ↓
+基础层：嵌入模型、LLM、数据库
+```
+
+### 知识库的创建
+#### 1.首先把所有类型的文件转换为markdown类型的文本
+``` 
+任意格式文档 → MarkItDown转换 → Markdown文本 → 智能分块 → 向量化 → 存储检索 
+```
+**多模态文档转换载入**：
+使用MarkItDown作为统一的文档转换引擎，支持几乎所有常见的文档格式。MarkItDown是微软开源的通用文档转换工具，它负责将任意格式的文档统一转换为结构化的Markdown文本。无论输入是PDF、Word、Excel、图片还是音频，最终都会转换为标准的Markdown格式，然后进入统一的分块、向量化和存储流程
+```python
+def _convert_to_markdown(path: str) -> str:
+    """
+    Universal document reader using MarkItDown with enhanced PDF processing.
+    核心功能：将任意格式文档转换为Markdown文本
+    
+    支持格式：
+    - 文档：PDF、Word、Excel、PowerPoint
+    - 图像：JPG、PNG、GIF（通过OCR）
+    - 音频：MP3、WAV、M4A（通过转录）
+    - 文本：TXT、CSV、JSON、XML、HTML
+    - 代码：Python、JavaScript、Java等
+    """
+    if not os.path.exists(path):
+        return ""
+    
+    # 对PDF文件使用增强处理
+    ext = (os.path.splitext(path)[1] or '').lower()
+    if ext == '.pdf':
+        return _enhanced_pdf_processing(path)
+    
+    # 其他格式使用MarkItDown统一转换
+    md_instance = _get_markitdown_instance()
+    if md_instance is None:
+        return _fallback_text_reader(path)
+    
+    try:
+        result = md_instance.convert(path)
+        markdown_text = getattr(result, "text_content", None)
+        if isinstance(markdown_text, str) and markdown_text.strip():
+            print(f"[RAG] MarkItDown转换成功: {path} -> {len(markdown_text)} chars Markdown")
+            return markdown_text
+        return ""
+    except Exception as e:
+        print(f"[WARNING] MarkItDown转换失败 {path}: {e}")
+        return _fallback_text_reader(path)
+```
+
+#### 2.对Markdown文本内容进行分块保存
+
+Markdown结构感知的分块流程：
+```
+标准Markdown文本 → 标题层次解析 → 段落语义分割 → Token计算分块 → 重叠策略优化 → 向量化准备
+       ↓                ↓              ↓            ↓           ↓            ↓
+   统一格式          #/##/###        语义边界      大小控制     信息连续性    嵌入向量
+   结构清晰          层次识别        完整性保证    检索优化     上下文保持    相似度匹配
+```
+**由于所有文档都已转换为Markdown格式，系统可以利用Markdown的标题结构（#、##、###等）进行精确的语义分割**
+
+##### 2.1 先进行数据清洗
+1. 依据段落先进行数据清洗（就是先按段落拆分），同时每个段落都包含对应的所属标题信息
+    ```python
+     paragraphs.append({
+            "content": content,
+            "heading_path": " > ".join(heading_stack) if heading_stack else None,
+            "start": max(0, end_pos - len(content)),
+            "end": end_pos,})
+    ```
+2. 判断当前行文本是否是空行，若是空行说明已经是段落结束了，缓冲区进行存储，然后清空缓冲区，进行下一段落的存储
+
+##### 2.2 依据固定token进行切分
+1. 确定切分依据的chunk_tokens大小
+2. 为防止切分成块（chunk）时相近段落被拆分造成语义割裂，采用了相邻分块重叠的解决方案
+3. 依次遍历上一步清洗后的段落数据列表（清洗后数据文档已经按段落分割为一个个列表），然后计算各自的预估token数量（这里是使用的简便的中文一个token，英文单词一个token），计算段落token相加的数量是否大于设定的chunk_tokens数量
+4. 这里计算重叠时，是结合段落以及设定的重叠overlap_tokens大小进行计算的。
+
+    4.1 如果上一分块最后一个段落的token量大于设定的overlap_tokens那就不进行重叠
+
+    4.2 如果最后一段的token数量小于设定的重叠token值overlap_tokens那就记录当前段落的token值，继续倒叙循环下一个段落判断token累计值，直到大于或者等于设定的重叠值overlap_token就不进行遍历。
+
+    4.3 遍历到的段落就是下一个分块与当前分块区域的重叠值，并记录token累计值，在这个基础上继续下一步的切分。
+
+#### 3. 把分块存入向量库
 
