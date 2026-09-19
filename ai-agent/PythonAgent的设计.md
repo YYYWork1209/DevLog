@@ -1,5 +1,243 @@
 [[TOC]]
 
+# 读前须知
+文档内容学习的是2025年底到2026年初的Agent相关知识，且是自己调用基础的模型API接口，来实现的各种Agent功能，并未使用流行框架（LangChain和LangGraph），
+主要目的在于理解Agent框架的底层设计，了解Agent的执行流程。
+
+下面列出截止到2026/09/18,笔记记录已经落后的相关内容如下：
+## FunctionCalling相关
+记录笔记时，模型大多数还不具备FunctionCalling功能（也可能是我不知道所以没有学习），所以笔记中实现调用工具的功能是通过先把工具记录为：工具名+工具描述+工具函数本体的方式。
+
+然后把工具记录到字典中，最终传给模型的时候直接把工具列表传过来，结合提示词模板，让模型依据用户信息决定是否需要调用工具，以及调用哪个工具，把参数返回，最后从模型回答中解析参数，再转换为需要的数据类型进行调用工具函数。、
+
+提示词模板示例如下：
+```python
+# ReAct 提示词模板
+REACT_PROMPT_TEMPLATE = """
+请注意，你是一个有能力调用外部工具的智能助手。
+
+可用工具如下:
+{tools}
+
+请严格按照以下格式进行回应:
+
+Thought: 你的思考过程，用于分析问题、拆解任务和规划下一步行动。
+Action: 你决定采取的行动，必须是以下格式之一:
+- `{{tool_name}}[{{tool_input}}]`:调用一个可用工具。
+- `Finish[最终答案]`:当你认为已经获得最终答案时。
+- 当你收集到足够的信息，能够回答用户的最终问题时，你必须在Action:字段后使用 Finish[最终答案] 来输出最终答案。
+
+现在，请开始解决以下问题:
+Question: {question}
+History: {history}
+"""
+```
+
+### 使用FunctionCalling的方式
+模型目前都具有FunctionCalling功能，在与模型进行交互时，工具信息不需要再填入到提示词模板中进行传输。
+
+模型有特定的字段来接收，具体示例(以OpenAI风格API为例)如下：
+```json
+{
+  "model": "gpt-4.1",
+  "messages": [
+    {"role": "user", "content": "北京天气怎么样？"}
+  ],
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "get_weather",
+        "description": "获取指定城市的天气",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "city": {
+              "type": "string",
+              "description": "城市名称"
+            },
+            "unit": {
+              "type": "string",
+              "enum": ["celsius", "fahrenheit"],
+              "description": "温度单位"
+            }
+          },
+          "required": ["city"]
+        }
+      }
+    }
+  ]
+}
+```
+
+我们传递工具信息时，直接作为字段属性传给大模型即可，模型有专门接收工具信息的json字段。模型的名称，描述以及参数信息都可以直接传给大模型。
+
+**工具类信息大致如下：**
+```python
+class SearchTool:
+    name = "search"
+    description = "搜索最新信息"
+
+    def to_openai_schema(self):
+        return {
+            "type": "function",
+            "function": {
+                "name": self.name,
+                "description": self.description,
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "description": "搜索关键词"
+                        }
+                    },
+                    "required": ["query"]
+                }
+            }
+        }
+
+    def run(self, query):
+        # 真正执行搜索
+        return f"搜索结果：{query}..."
+```
+
+同样，模型后续需要进行调用某个工具时，会把工具名称，工具参数也放到对应的json字段中返回，我们直接在回复字段中取出对应参数即可调用相关工具。
+
+模型返回示例如下：
+```json
+{
+  "choices": [
+    {
+      "message": {
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_abc123",
+            "type": "function",
+            "function": {
+              "name": "get_weather",
+              "arguments": "{\"city\":\"北京\",\"unit\":\"celsius\"}"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+之前是直接把工具信息填入到提示词模板中传给大模型的，这样的方式属于硬编码，后续调整很不方便，耦合度太高，同样返回时的参数从模型回答中进行提取，完全依赖于模型回复格式，若上下文变大，模型出现幻觉，未按固定格式输出，参数提取会失败，调用就会失败。
+
+使用FunctionCalling之后，工具信息直接依据模型提供方固定的接收方式进行传递，工具调用及参数信息也由模型的固定输出字段进行提取，调用稳定性大幅提高，同时后续进行工具微调，业务逻辑调整等都十分方便
+
+下面把具体调用示例步骤显示如下：
+
+**第一步：请求模型**
+```python
+import json
+from openai import OpenAI
+
+client = OpenAI()
+
+tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_weather",
+            "description": "获取指定城市的天气",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "city": {"type": "string", "description": "城市名称"},
+                    "unit": {
+                        "type": "string",
+                        "enum": ["celsius", "fahrenheit"],
+                        "description": "温度单位"
+                    }
+                },
+                "required": ["city"]
+            }
+        }
+    }
+]
+
+messages = [
+    {"role": "system", "content": "你是一个可以使用工具的AI助手。"},
+    {"role": "user", "content": "北京天气怎么样？"}
+]
+
+response = client.chat.completions.create(
+    model="gpt-4.1",
+    messages=messages,
+    tools=tools
+)
+```
+
+**第二步：模型返回 tool_calls**
+模型不会直接执行函数，而是返回：
+```python
+{
+  "role": "assistant",
+  "tool_calls": [
+    {
+      "id": "call_abc123",
+      "type": "function",
+      "function": {
+        "name": "get_weather",
+        "arguments": "{\"city\":\"北京\",\"unit\":\"celsius\"}"
+      }
+    }
+  ]
+}
+```
+注意：arguments 是一个 JSON 字符串，不是已经解析好的对象
+
+**第三步：解析参数并执行本地工具**
+```python
+msg = response.choices[0].message
+
+if msg.tool_calls:
+    for tool_call in msg.tool_calls:
+        name = tool_call.function.name
+        args = json.loads(tool_call.function.arguments)
+
+        if name == "get_weather":
+            result = get_weather(**args)   # 真正执行你的函数
+        else:
+            result = f"未知工具: {name}"
+
+        messages.append({
+            "role": "tool",
+            "tool_call_id": tool_call.id,
+            "content": json.dumps(result, ensure_ascii=False)
+        })
+```
+
+**第四步：把工具结果回传模型**  
+```python
+messages.append(response.choices[0].message)  # 把 assistant 的 tool_calls 消息也加进去
+
+response2 = client.chat.completions.create(
+    model="gpt-4.1",
+    messages=messages,
+    tools=tools
+)
+
+print(response2.choices[0].message.content)
+# 北京当前天气晴，气温 25 摄氏度。
+```
+
+如果模型觉得还需要调用别的工具，它会继续返回 tool_calls。
+所以整体是一个循环
+```
+调用 LLM → 返回 tool_calls → 执行工具 → 回传 tool 结果 → 再调用 LLM
+直到模型返回普通 content，作为最终回答。
+```
+
+## MCP相关
+
+
+
 ## config配置基类
 给出固定默认值，同时若未传入参数，从环境变量中进行读取
 ```python
