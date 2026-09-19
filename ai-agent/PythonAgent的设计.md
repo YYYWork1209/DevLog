@@ -234,8 +234,104 @@ print(response2.choices[0].message.content)
 直到模型返回普通 content，作为最终回答。
 ```
 
-## MCP相关
+Function Calling 中，工具信息不是拼进 ReAct 提示词模板的 {tools} 文本里，而是作为 API 请求的 tools 字段，以 JSON Schema 列表的形式传给模型。模型返回结构化的 tool_calls，其中包含函数名和 JSON 字符串形式的参数。应用侧解析参数、执行本地工具，再把结果作为 role=tool 消息回传模型，循环直到模型给出最终回答
 
+## MCP相关
+原本的MCP实现是我们拉去MCP服务到本地之后，启动项目时，我们直接向MCP服务发起请求（例如查询有哪些工具，或是调用需要执行的工具），然后MCP内部执行对应工具后把结果返回。
+
+我们需要做的就是把需要调用的信息（工具信息）发给MCP，然后等待接收结果即可。  
+具体的工具内部执行和HTTP请求，例如调用高德地图API需要发送HTTP请求，是在MCP内部封装好的，由MCP去执行。
+
+**MCP中包含多个工具，同时每个工具都有自己对应的FunctionCalling，描述了该工具具体可以做什么。**  
+
+但是我们没必要在每次调用模型时都把MCP中所有的工具信息都发给模型，这样的话会造成上下文过长，信息一多模型的注意力便会分散。
+
+### **传统做法：一次性传递所有工具**
+
+早期的 MCP 实现中，客户端会在连接 MCP 服务器后，立即发送 tools/list 请求，获取该服务器上所有可用工具的完整定义（包括名称、描述、JSON Schema），然后一次性全部传给 LLM。
+
+这个过程的核心机制是：
+
+1. 客户端连接 MCP 服务器（本地启动的进程或远程服务）。
+2. 发送 tools/list 请求，服务器返回该 MCP 中所有工具的定义列表，每个工具都包含 name、description 和 inputSchema。
+3. 客户端将这些工具定义转换成 LLM 的 Function Calling 格式（比如 OpenAI 的 tools 字段格式），随请求一起发给模型。
+4. 模型返回 tool_calls，客户端再通过 MCP 的 tools/call 请求去实际执行工具。
+
+所以在这种模式下，一个 MCP 服务器对应的是“一批工具”，客户端会把这一批工具全部传给模型，而不是“一个 MCP 对应一个描述”。
+
+**带来问题：上下文膨胀**
+
+当 MCP 服务器暴露的工具数量很多时（比如几十上百个），把所有工具定义一次性塞进模型的上下文窗口，会带来严重问题：
+
+- Token 消耗巨大：每个工具的 JSON Schema 都要占用 token，工具多了之后光是工具定义就可能吃掉大量上下文预算。
+- 模型选择困难：工具太多时，模型反而容易选错或混淆相似的工具。
+- 延迟增加：传输和处理大量工具定义会增加请求延迟
+
+### 渐进式披露的解决方案
+渐进式披露的核心思想是：不要把 MCP 里所有工具的完整定义一次性全部传给模型，而是分层、按需地暴露工具信息。
+
+Anthropic 的官方指引明确指出，MCP 服务器应该渐进式地揭示能力，而不是把所有工具定义都倾倒进模型上下文。
+
+具体实现方式有几种：
+
+**方式一：先给“分类”，再给“具体工具”**
+
+客户端先只告诉模型 MCP 服务器有哪些工具类别或能力概述（比如“这个 MCP 提供文件操作、数据库查询、网络请求三类工具”）。当模型判断需要某一类工具时，再发送 tools/list 获取该类别的具体工具定义，并追加到对话上下文中。这样模型的第一步决策只需要基于少量信息，等真正需要时才加载详细 Schema
+
+**方式二：用“搜索工具”代替“全部工具”**
+
+Hermes Agent 采用了这种模式：它把 MCP 和插件工具替换成三个“桥接工具”，模型只看到这三个桥接工具。当模型需要某个具体工具时，通过桥接工具去按需加载对应的 Schema。
+
+ProDisco 也类似：MCP 服务器只暴露 searchTools 和 runSandbox 两个工具，模型先用搜索工具找到需要的 API，再在沙箱中执行，最终只把精简结果返回给模型。
+
+**方式三：Anthropic Agent Skills 的三级披露**、
+
+Anthropic 的 Agent Skills 采用了更精细的三级渐进披露架构：
+
+- Level 1：只加载技能的 name 和简短描述（始终在系统提示中）。
+- Level 2：当模型判断需要某个技能时，加载该技能的详细文档。
+- Level 3：只有真正执行时才加载完整的代码或资源。
+
+这种模式让技能数量可以无限扩展，而不会撑爆上下文窗口。
+
+**示例如下：**
+
+以 Python 的 MCP 客户端为例，传统方式大概是：
+
+```python
+# 连接 MCP 服务器后，一次性获取所有工具
+tools = await session.list_tools()  # 返回该 MCP 上所有工具
+
+# 全部转换成 OpenAI Function Calling 格式
+openai_tools = [mcp_tool_to_openai(t) for t in tools.tools]
+
+# 发给模型
+response = client.chat.completions.create(
+    model="gpt-4.1",
+    messages=messages,
+    tools=openai_tools
+)
+```
+而渐进式披露的客户端会这样处理：
+
+```python
+# 先只获取工具的分类/摘要（可能由 MCP 服务器提供一个"元工具"）
+summary = await session.call_tool("get_tool_categories", {})
+
+# 把摘要告诉模型，模型决定需要哪类工具
+# 然后才按需加载具体工具
+if need_weather_tools:
+    weather_tools = await session.list_tools(category="weather")
+    # 只把 weather 相关的工具加入 tools 字段
+```
+
+|问题|回答|
+|:-|:-|
+|MCP 会把所有工具一次性传给模型吗？|传统做法会，客户端连接后立即 tools/list 并全部传给模型。但这不是唯一方式，也不是推荐方式。|
+|一个 MCP 对应一个描述吗？|一个 MCP 服务器通常暴露多个工具，客户端可以通过 tools/list 获取全部，也可以按需部分获取|
+|渐进式披露怎么实现？|客户端先给模型分类/摘要，或提供搜索工具，模型判断需要时才按需加载具体工具的 JSON Schema。Anthropic 的 Agent Skills 采用三级披露架构。|
+
+之前理解的 Function Calling 机制（工具定义结构化传给模型、模型返回 tool_calls）在 MCP 场景下依然成立，只是“传哪些工具”从“全部”变成了“按需的部分”。这也是当前 Agent 框架在工具规模增大后必须面对的核心工程问题之一
 
 
 ## config配置基类
